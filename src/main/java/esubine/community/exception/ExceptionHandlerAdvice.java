@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice {
-    @ExceptionHandler({DuplicatedException.class})
+    @ExceptionHandler({DuplicatedException.class, AuthException.class})
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse aaa(Exception e){
