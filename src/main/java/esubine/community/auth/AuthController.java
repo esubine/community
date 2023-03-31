@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/login")
 public class AuthController {
     private final AuthService authService;
-    // TODO: 로그인 API - Token 생성
 
     @PostMapping
     public TokenResponse loginUser(@RequestBody LoginRequest loginRequest){
