@@ -1,11 +1,13 @@
 package esubine.community.user;
 
+import esubine.community.EmptyResponse;
 import esubine.community.auth.TokenEntity;
 import esubine.community.auth.TokenRepository;
 import esubine.community.db.user.UserEntity;
 import esubine.community.db.user.UserRepository;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
+import esubine.community.exception.MisMatchException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,12 +57,26 @@ public class UserService {
 
         return new UserResponse(user);
     }
+
     @Transactional
-    public UserResponse deleteUser(String tokenInput){
+    public EmptyResponse deleteUser(String tokenInput) {
         Long userId = getUserIdByToken(tokenInput);
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
         tokenRepository.deleteAllByUserId(user.getId());
         userRepository.delete(user);
         return null;
+    }
+
+    public EmptyResponse updatePassword(String tokenInput, UpdatePasswordRequest updatePasswordRequest) {
+        Long userId = getUserIdByToken(tokenInput);
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
+        if (user.getLoginPassword().equals(updatePasswordRequest.getPresentPassword())) {
+            user.setLoginPassword(updatePasswordRequest.getNewPassword());
+            userRepository.save(user);
+
+        } else {
+            throw new MisMatchException("기존 비밀번호가 일치하지 않습니다.");
+        }
+        return new EmptyResponse();
     }
 }

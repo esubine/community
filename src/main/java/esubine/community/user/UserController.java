@@ -21,6 +21,13 @@ public class UserController {
         return new EmptyResponse();
     }
     // TODO: 비밀번호 변경
+    @PatchMapping("/password")
+    public EmptyResponse updatePassword(
+            @RequestHeader("Authorization") String token,
+            @RequestBody UpdatePasswordRequest updatePasswordRequest
+    ){
+        return userService.updatePassword(token, updatePasswordRequest);
+    }
 
 
     @GetMapping("/{id}")
@@ -41,7 +48,7 @@ public class UserController {
     }
 
     @DeleteMapping
-    public UserResponse deleteUser(
+    public EmptyResponse deleteUser(
             @RequestHeader("Authorization") String token
     ){
         return userService.deleteUser(token);
