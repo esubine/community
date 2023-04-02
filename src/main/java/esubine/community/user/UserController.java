@@ -22,20 +22,29 @@ public class UserController {
     }
     // TODO: 비밀번호 변경
 
-    // TODO: 내 정보 보여주기 (활동 요약) -> 토큰(로그인)정보 확인 후 정보 보여줘야함!!
+
     @GetMapping("/{id}")
     public UserResponse getUserInfo(
-            @RequestHeader("Authorization") String token,
             @PathVariable("id") Long id
     ) {
-        UserResponse userResponse = new UserResponse(
-                userService.getUserInfo(token, id).get().getRealName(),
-                userService.getUserInfo(token, id).get().getNickname(),
-                userService.getUserInfo(token, id).get().getLoginId()
-        );
-        return userResponse;
+        return userService.getUserInfo(id);
+
     }
 
-    // TODO: 닉네임 변경
-    // TODO: 탈퇴
+    @PatchMapping
+    public UserResponse updateNickname(
+            @RequestHeader("Authorization") String token,
+            @RequestBody UpdateNicknameRequest updateNicknameRequest
+    ) {
+
+        return userService.updateNickname(token, updateNicknameRequest);
+    }
+
+    @DeleteMapping
+    public UserResponse deleteUser(
+            @RequestHeader("Authorization") String token
+    ){
+        return userService.deleteUser(token);
+    }
+
 }
