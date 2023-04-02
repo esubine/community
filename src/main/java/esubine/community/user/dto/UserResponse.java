@@ -1,9 +1,8 @@
-package esubine.community.user;
+package esubine.community.user.dto;
 
-import esubine.community.db.user.UserEntity;
+import esubine.community.user.model.UserEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 
 @Getter
 @RequiredArgsConstructor

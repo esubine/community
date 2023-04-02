@@ -1,4 +1,4 @@
-package esubine.community.auth;
+package esubine.community.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

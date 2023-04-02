@@ -1,4 +1,4 @@
-package esubine.community.user;
+package esubine.community.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;

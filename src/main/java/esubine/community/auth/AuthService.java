@@ -1,7 +1,9 @@
 package esubine.community.auth;
 
-import esubine.community.db.user.UserEntity;
-import esubine.community.db.user.UserRepository;
+import esubine.community.auth.model.TokenEntity;
+import esubine.community.auth.model.TokenRepository;
+import esubine.community.user.model.UserEntity;
+import esubine.community.user.model.UserRepository;
 import esubine.community.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

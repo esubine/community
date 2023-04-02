@@ -1,13 +1,17 @@
 package esubine.community.user;
 
 import esubine.community.EmptyResponse;
-import esubine.community.auth.TokenEntity;
-import esubine.community.auth.TokenRepository;
-import esubine.community.db.user.UserEntity;
-import esubine.community.db.user.UserRepository;
+import esubine.community.auth.model.TokenEntity;
+import esubine.community.auth.model.TokenRepository;
+import esubine.community.user.model.UserEntity;
+import esubine.community.user.model.UserRepository;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.MisMatchException;
+import esubine.community.user.dto.CreateUserRequest;
+import esubine.community.user.dto.UpdateNicknameRequest;
+import esubine.community.user.dto.UpdatePasswordRequest;
+import esubine.community.user.dto.UserResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,9 +49,8 @@ public class UserService {
         return userId;
     }
 
-    public UserResponse updateNickname(String tokenInput, UpdateNicknameRequest updateNicknameRequest) {
+    public UserResponse updateNickname(Long userId, UpdateNicknameRequest updateNicknameRequest) {
         //토큰 확인 - 토큰에 유저아이디 들어온 아이디가 일치하는지 - 유저엔티티.getnickname해서 닉네임 중복확인 - 닉네임 업데이트
-        Long userId = getUserIdByToken(tokenInput);
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
         if (userRepository.findByNickname(updateNicknameRequest.getNickname()) == null) {
@@ -59,16 +62,14 @@ public class UserService {
     }
 
     @Transactional
-    public EmptyResponse deleteUser(String tokenInput) {
-        Long userId = getUserIdByToken(tokenInput);
+    public EmptyResponse deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
         tokenRepository.deleteAllByUserId(user.getId());
         userRepository.delete(user);
         return null;
     }
 
-    public EmptyResponse updatePassword(String tokenInput, UpdatePasswordRequest updatePasswordRequest) {
-        Long userId = getUserIdByToken(tokenInput);
+    public EmptyResponse updatePassword(Long userId, UpdatePasswordRequest updatePasswordRequest) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
         if (user.getLoginPassword().equals(updatePasswordRequest.getPresentPassword())) {
             user.setLoginPassword(updatePasswordRequest.getNewPassword());

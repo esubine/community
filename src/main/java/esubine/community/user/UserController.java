@@ -1,6 +1,13 @@
 package esubine.community.user;
 
 import esubine.community.EmptyResponse;
+import esubine.community.auth.AuthInfo;
+import esubine.community.exception.AuthException;
+import esubine.community.user.dto.CreateUserRequest;
+import esubine.community.user.dto.UpdateNicknameRequest;
+import esubine.community.user.dto.UpdatePasswordRequest;
+import esubine.community.user.dto.UserResponse;
+import esubine.community.user.model.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +30,11 @@ public class UserController {
     // TODO: 비밀번호 변경
     @PatchMapping("/password")
     public EmptyResponse updatePassword(
-            @RequestHeader("Authorization") String token,
+//            @RequestHeader("Authorization") String token,
+            AuthInfo authInfo,
             @RequestBody UpdatePasswordRequest updatePasswordRequest
     ){
-        return userService.updatePassword(token, updatePasswordRequest);
+        return userService.updatePassword(authInfo.getUserId(), updatePasswordRequest);
     }
 
 
@@ -40,18 +48,17 @@ public class UserController {
 
     @PatchMapping
     public UserResponse updateNickname(
-            @RequestHeader("Authorization") String token,
+            AuthInfo authInfo,
             @RequestBody UpdateNicknameRequest updateNicknameRequest
     ) {
-
-        return userService.updateNickname(token, updateNicknameRequest);
+        return userService.updateNickname(authInfo.getUserId(), updateNicknameRequest);
     }
 
     @DeleteMapping
     public EmptyResponse deleteUser(
-            @RequestHeader("Authorization") String token
+            AuthInfo authInfo
     ){
-        return userService.deleteUser(token);
+        return userService.deleteUser(authInfo.getUserId());
     }
 
 }

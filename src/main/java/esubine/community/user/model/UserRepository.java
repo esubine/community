@@ -1,4 +1,4 @@
-package esubine.community.db.user;
+package esubine.community.user.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

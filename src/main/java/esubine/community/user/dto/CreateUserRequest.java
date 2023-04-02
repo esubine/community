@@ -1,6 +1,6 @@
-package esubine.community.user;
+package esubine.community.user.dto;
 
-import esubine.community.db.user.UserEntity;
+import esubine.community.user.model.UserEntity;
 import lombok.Getter;
 
 @Getter
