@@ -17,6 +17,5 @@ public class CreateUserRequest {
                 this.loginId,
                 this.loginPassword
         );
-
     }
 }
