@@ -2,6 +2,7 @@ package esubine.community.board;
 
 import esubine.community.board.dto.BoardResponse;
 import esubine.community.board.dto.CreateBoardRequest;
+import esubine.community.board.dto.UpdateBoardRequest;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,28 @@ public class BoardService {
 
     public List<BoardEntity> getBoardByUserId(Long userId) {
         return boardRepository.findByUserId(userId);
+    }
+
+    public Optional<BoardEntity> getBoardById(Long boardId) {
+        return boardRepository.findById(boardId);
+    }
+
+    public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
+        // userId 강제입력
+        userId = 7l;
+        Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
+        if (boardOptional.isEmpty()) return null;
+        BoardEntity board = boardOptional.get();
+        System.out.println("updateBoardRequest = " + updateBoardRequest.getTitle());
+        if (updateBoardRequest.getTitle() != null) {
+            System.out.println("getTitle = " + updateBoardRequest.getTitle());
+            board.setTitle(updateBoardRequest.getTitle());
+        }
+        if (updateBoardRequest.getContents() != null) {
+            board.setContents(updateBoardRequest.getContents());
+        }
+        boardRepository.save(board);
+        return board;
     }
 
 }

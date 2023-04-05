@@ -3,6 +3,7 @@ package esubine.community.board;
 import esubine.community.auth.AuthInfo;
 import esubine.community.board.dto.BoardResponse;
 import esubine.community.board.dto.CreateBoardRequest;
+import esubine.community.board.dto.UpdateBoardRequest;
 import esubine.community.board.model.BoardEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,6 @@ public class BoardController {
             AuthInfo authInfo,
             @RequestBody CreateBoardRequest createBoardRequest
     ) {
-        System.out.println("authInfo = " + authInfo.getUserId());
         BoardEntity board = boardService.createBoard(authInfo.getUserId(), createBoardRequest);
         return new BoardResponse(board);
     }
@@ -45,7 +45,17 @@ public class BoardController {
     //TODO: 카테고리별 게시물 검색
 
 
-    //TODO: 게시물 수정(제목, 내용, 카테고리)
+    @PatchMapping("/{boardId}")
+    public BoardResponse updateBoard(
+            AuthInfo authInfo,
+            @PathVariable("boardId") Long boardId,
+            @RequestBody UpdateBoardRequest updateBoardRequest
+    ){
+        BoardEntity board =  boardService.updateBoard(authInfo.getUserId(), boardId, updateBoardRequest);
+        return new BoardResponse(board);
+    }
+
+
     //TODO: 게시물 삭제
     //TODO: 게시물 좋아요 기능
     //TODO: 게시물 신고
