@@ -5,6 +5,8 @@ import esubine.community.board.dto.CreateBoardRequest;
 import esubine.community.board.dto.UpdateBoardRequest;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
+import esubine.community.exception.AuthException;
+import esubine.community.exception.NoDataException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +61,7 @@ public class BoardService {
         // userId 강제입력
         userId = 7l;
         Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
-        if (boardOptional.isEmpty()) return null;
+        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
         System.out.println("updateBoardRequest = " + updateBoardRequest.getTitle());
         if (updateBoardRequest.getTitle() != null) {
@@ -70,6 +72,23 @@ public class BoardService {
             board.setContents(updateBoardRequest.getContents());
         }
         boardRepository.save(board);
+        return board;
+    }
+
+    public BoardEntity deleteBoard(Long userId, Long boardId) {
+        // userId 강제입력
+        userId = 7l;
+
+        Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
+        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
+        BoardEntity board = boardOptional.get();
+
+        if (userId.equals(board.getUserId())){
+            System.out.println(" = " +userId);
+            System.out.println("board.getUserId() = " + board.getUserId());
+            boardRepository.delete(board);
+        }
+        else throw new AuthException("작성자만 삭제할 수 있습니다.");
         return board;
     }
 

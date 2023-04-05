@@ -9,19 +9,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice {
-    @ExceptionHandler({DuplicatedException.class, AuthException.class, MisMatchException.class})
+    @ExceptionHandler({DuplicatedException.class, AuthException.class, MisMatchException.class, NoDataException.class})
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse aaa(Exception e){
+    public ErrorResponse aaa(Exception e) {
         return new ErrorResponse(e.getMessage());
     }
-
 
 
     @ExceptionHandler({MissingRequestHeaderException.class})
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse bbb(Exception e){
+    public ErrorResponse bbb(Exception e) {
         return new ErrorResponse("필요한 입력 값이 없습니다. Cause by: " + e.getMessage());
     }
 }

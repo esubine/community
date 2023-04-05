@@ -1,5 +1,6 @@
 package esubine.community.board;
 
+import esubine.community.EmptyResponse;
 import esubine.community.auth.AuthInfo;
 import esubine.community.board.dto.BoardResponse;
 import esubine.community.board.dto.CreateBoardRequest;
@@ -28,7 +29,7 @@ public class BoardController {
     }
 
     @GetMapping
-    public List<BoardResponse> getTotalBoard(){
+    public List<BoardResponse> getTotalBoard() {
         List<BoardEntity> boardList = boardService.getBoard();
         return boardService.responseBoard(boardList);
     }
@@ -36,7 +37,7 @@ public class BoardController {
     @GetMapping("/userId/{userId}")
     public List<BoardResponse> getBoardByUserId(
             @PathVariable("userId") Long userId
-    ){
+    ) {
         List<BoardEntity> boardList = boardService.getBoardByUserId(userId);
         return boardService.responseBoard(boardList);
 
@@ -50,13 +51,20 @@ public class BoardController {
             AuthInfo authInfo,
             @PathVariable("boardId") Long boardId,
             @RequestBody UpdateBoardRequest updateBoardRequest
-    ){
-        BoardEntity board =  boardService.updateBoard(authInfo.getUserId(), boardId, updateBoardRequest);
+    ) {
+        BoardEntity board = boardService.updateBoard(authInfo.getUserId(), boardId, updateBoardRequest);
         return new BoardResponse(board);
     }
 
+    @DeleteMapping("/{boardId}")
+    public EmptyResponse deleteBoard(
+        AuthInfo authInfo,
+        @PathVariable("boardId") Long boardId
+    ){
+        boardService.deleteBoard(authInfo.getUserId(), boardId);
+        return new EmptyResponse();
+    }
 
-    //TODO: 게시물 삭제
     //TODO: 게시물 좋아요 기능
     //TODO: 게시물 신고
 }
