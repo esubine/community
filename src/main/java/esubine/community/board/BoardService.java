@@ -5,6 +5,7 @@ import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
 import esubine.community.board.model.LikesInfoEntity;
 import esubine.community.board.model.LikesInfoRepository;
+import esubine.community.comment.model.CommentEntity;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.NoDataException;
@@ -70,9 +71,13 @@ public class BoardService {
     }
 
     public BoardEntity deleteBoard(Long userId, Long boardId) {
+//        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
+//        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
+//        BoardEntity board = boardOptional.get();
+
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
-        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
-        BoardEntity board = boardOptional.get();
+        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+
 
         if (userId.equals(board.getUser().getId())) {
             boardRepository.delete(board);
@@ -84,8 +89,7 @@ public class BoardService {
 
     public BoardLikesResponse likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
-        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
-        BoardEntity board = boardOptional.get();
+        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
         return likeAdd(board, userId, boardId, likeRequest);
 
