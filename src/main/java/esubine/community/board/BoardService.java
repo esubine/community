@@ -21,9 +21,6 @@ public class BoardService {
     private final LikesInfoRepository likesInfoRepository;
 
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest) {
-        //userId 강제입력
-        userId = 7l;
-
         BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId);
         return boardRepository.save(board);
     }
@@ -59,8 +56,8 @@ public class BoardService {
     }
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
-        // userId 강제입력
-        userId = 7l;
+        // TODO: userID 검증
+
         Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
