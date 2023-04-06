@@ -29,34 +29,32 @@ public class CommentService {
         Optional<CommentEntity> commentOptional = commentRepository.findById(commentId);
         CommentEntity comment = commentOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
-        if(userId.equals(comment.getUser().getId())){
+        if (userId.equals(comment.getUser().getId())) {
             comment.setComment(commentRequest.getComment());
             commentRepository.save(comment);
-        }
-        else{
+        } else {
             throw new AuthException("작성자만 수정할 수 있습니다.");
         }
         return new EmptyResponse();
 //        return comment;
     }
 
-    public EmptyResponse deleteComment(Long userId, Long commentId){
+    public EmptyResponse deleteComment(Long userId, Long commentId) {
         Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
         CommentEntity comment = commentEntityOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
-        if(userId.equals(comment.getUser().getId())){
+        if (userId.equals(comment.getUser().getId())) {
             commentRepository.deleteById(commentId);
-        }
-        else{
+        } else {
             throw new AuthException("작성자만 삭제할 수 있습니다.");
         }
         return new EmptyResponse();
     }
 
-    public List<CommentEntity> getCommentByBoardId(Long boardId){
+    public List<CommentEntity> getCommentByBoardId(Long boardId) {
         List<CommentEntity> commentEntityList = commentRepository.getAllByBoardId(boardId);
-        if(commentEntityList.isEmpty()){
-            throw new NoDataException("댓글이 없습니다.");
+        if (commentEntityList.isEmpty()) {
+            throw new NoDataException("작성된 댓글이 없습니다.");
         }
         return commentEntityList;
     }
@@ -71,5 +69,11 @@ public class CommentService {
         return result;
     }
 
-
+    public List<CommentEntity> getCommentByUserId(Long userId) {
+        List<CommentEntity> commentEntityList = commentRepository.getAllByUserId(userId);
+        if (commentEntityList.isEmpty()) {
+            throw new NoDataException("작성한 댓글이 없습니다.");
+        }
+        return commentEntityList;
+    }
 }

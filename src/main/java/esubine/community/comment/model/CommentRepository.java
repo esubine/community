@@ -11,4 +11,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             "WHERE c.boardId=:boardId ")
     List<CommentEntity> getAllByBoardId(Long boardId);
 
+    @Query("SELECT c FROM CommentEntity c " +
+            "LEFT JOIN FETCH c.user " +
+            "WHERE c.user.id=:userId ")
+    List<CommentEntity> getAllByUserId(Long userId);
 }

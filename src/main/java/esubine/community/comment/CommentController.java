@@ -52,5 +52,12 @@ public class CommentController {
         return commentService.responseBoard(commentEntityList);
     }
 
+    @GetMapping("/user")
+    public List<CommentResponse> getCommentByUserId(
+            AuthInfo authInfo
+    ){
+        List<CommentEntity> commentEntityList = commentService.getCommentByUserId(authInfo.getUserId());
+        return commentService.responseBoard(commentEntityList);
+    }
 
 }
