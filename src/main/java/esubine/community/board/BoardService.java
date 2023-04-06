@@ -2,10 +2,14 @@ package esubine.community.board;
 
 import esubine.community.board.dto.BoardResponse;
 import esubine.community.board.dto.CreateBoardRequest;
+import esubine.community.board.dto.LikeRequest;
 import esubine.community.board.dto.UpdateBoardRequest;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
+import esubine.community.board.model.LikesInfoEntity;
+import esubine.community.board.model.LikesInfoRepository;
 import esubine.community.exception.AuthException;
+import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.NoDataException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,14 +33,7 @@ public class BoardService {
         List<BoardResponse> result = new ArrayList<>();
         for (int i = 0; i < boardList.size(); i++) {
             BoardEntity board = boardList.get(i);
-            BoardResponse boardResponse = new BoardResponse(
-                    board.getBoardId(),
-                    board.getTitle(),
-                    board.getContents(),
-                    board.getUserId(),
-                    board.getCreatedAt(),
-                    board.getUpdatedAt()
-            );
+            BoardResponse boardResponse = new BoardResponse(board);
             result.add(boardResponse);
         }
         return result;
@@ -51,8 +48,9 @@ public class BoardService {
         return boardRepository.findByUserId(userId);
     }
 
-    public Optional<BoardEntity> getBoardById(Long boardId) {
-        return boardRepository.findById(boardId);
+    public BoardEntity getBoardById(Long boardId) {
+        return boardRepository.findById(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
+//        return boardRepository.findByBoardId(boardId);
     }
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
@@ -61,32 +59,29 @@ public class BoardService {
         Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
-        System.out.println("updateBoardRequest = " + updateBoardRequest.getTitle());
+//        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+
         if (updateBoardRequest.getTitle() != null) {
-            System.out.println("getTitle = " + updateBoardRequest.getTitle());
             board.setTitle(updateBoardRequest.getTitle());
         }
+
         if (updateBoardRequest.getContents() != null) {
             board.setContents(updateBoardRequest.getContents());
         }
-        boardRepository.save(board);
-        return board;
+
+        return boardRepository.save(board);
     }
 
     public BoardEntity deleteBoard(Long userId, Long boardId) {
-        // userId 강제입력
-        userId = 7l;
-
         Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 
-        if (userId.equals(board.getUserId())){
-            System.out.println(" = " +userId);
-            System.out.println("board.getUserId() = " + board.getUserId());
+        if (userId.equals(board.getUserId())) {
             boardRepository.delete(board);
+        } else {
+            throw new AuthException("작성자만 삭제할 수 있습니다.");
         }
-        else throw new AuthException("작성자만 삭제할 수 있습니다.");
         return board;
     }
 

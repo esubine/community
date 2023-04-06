@@ -4,6 +4,7 @@ import esubine.community.EmptyResponse;
 import esubine.community.auth.AuthInfo;
 import esubine.community.board.dto.BoardResponse;
 import esubine.community.board.dto.CreateBoardRequest;
+import esubine.community.board.dto.LikeRequest;
 import esubine.community.board.dto.UpdateBoardRequest;
 import esubine.community.board.model.BoardEntity;
 import lombok.RequiredArgsConstructor;
@@ -28,18 +29,26 @@ public class BoardController {
         return new BoardResponse(board);
     }
 
-    @GetMapping
-    public List<BoardResponse> getTotalBoard() {
-        List<BoardEntity> boardList = boardService.getBoard();
-        return boardService.responseBoard(boardList);
+    @GetMapping("/{boardId}")
+    public BoardResponse getBoardByBoardId(
+            @PathVariable("boardId") Long boardId
+    ) {
+        BoardEntity board = boardService.getBoardById(boardId);
+        BoardResponse boardResponse = new BoardResponse(board);
+        return boardResponse;
     }
 
-    @GetMapping("/userId/{userId}")
+    @GetMapping
     public List<BoardResponse> getBoardByUserId(
-            @PathVariable("userId") Long userId
+            @RequestParam("userId") Long userId
     ) {
-        List<BoardEntity> boardList = boardService.getBoardByUserId(userId);
-        return boardService.responseBoard(boardList);
+        if (userId == null) {
+            List<BoardEntity> boardList = boardService.getBoard();
+            return boardService.responseBoard(boardList);
+        } else {
+            List<BoardEntity> boardList = boardService.getBoardByUserId(userId);
+            return boardService.responseBoard(boardList);
+        }
 
     }
 
@@ -58,9 +67,9 @@ public class BoardController {
 
     @DeleteMapping("/{boardId}")
     public EmptyResponse deleteBoard(
-        AuthInfo authInfo,
-        @PathVariable("boardId") Long boardId
-    ){
+            AuthInfo authInfo,
+            @PathVariable("boardId") Long boardId
+    ) {
         boardService.deleteBoard(authInfo.getUserId(), boardId);
         return new EmptyResponse();
     }
