@@ -48,6 +48,9 @@ public class BoardEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name="likes")
+    private int likes;
+
     public static BoardEntity of(String title, String contents) {
         BoardEntity board = new BoardEntity();
         board.title = title;

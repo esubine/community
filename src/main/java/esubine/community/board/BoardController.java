@@ -66,7 +66,17 @@ public class BoardController {
     }
 
     //TODO: 게시물 좋아요 기능
+    @PostMapping("/{boardId}/like")
+    public int likeBoard(
+            AuthInfo authInfo,
+            @PathVariable("boardId") Long boardId,
+            @RequestBody LikeRequest likeRequest
+    ) {
+        return boardService.likeBoard(authInfo.getUserId(), boardId, likeRequest);
+    }
+
     //TODO: 게시물 신고
+
 }
 
 

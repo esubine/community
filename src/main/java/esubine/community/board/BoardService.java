@@ -18,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final LikesInfoRepository likesInfoRepository;
 
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest) {
         //userId 강제입력
@@ -90,6 +91,34 @@ public class BoardService {
         }
         else throw new AuthException("작성자만 삭제할 수 있습니다.");
         return board;
+    }
+
+    public int likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
+        Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
+        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
+        BoardEntity board = boardOptional.get();
+
+        return likeAdd(board, userId, boardId, likeRequest);
+
+    }
+
+    public int likeAdd(BoardEntity board, Long userId, Long boardId, LikeRequest likeRequest) {
+        int count = board.getLikes();
+        LikesInfoEntity likesInfoEntity = new LikesInfoEntity();
+
+//TODO: 좋아요 누르기 중복으로 되지 않도록 수정
+        if (likeRequest.isLike()) {
+//            if (likesInfoEntityList.getUserId().equals(userId) && likesInfoEntityList.getBoardId().equals(boardId))
+            throw new DuplicatedException("이미 좋아요를 누른 게시물입니다.");
+        } else {
+            count++;
+            board.setLikes(count);
+            likesInfoEntity.setUserId(userId);
+            likesInfoEntity.setBoardId(boardId);
+            boardRepository.save(board);
+            likesInfoRepository.save(likesInfoEntity);
+        }
+        return board.getLikes();
     }
 
 }

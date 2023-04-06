@@ -9,3 +9,4 @@ CREATE TABLE board
     updated_at  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '최종 수정 시간',
     PRIMARY KEY (board_id)
 ) ENGINE = InnoDB COMMENT '게시판 정보';
+
