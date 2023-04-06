@@ -2,11 +2,9 @@ package esubine.community.board;
 
 import esubine.community.EmptyResponse;
 import esubine.community.auth.AuthInfo;
-import esubine.community.board.dto.BoardResponse;
-import esubine.community.board.dto.CreateBoardRequest;
-import esubine.community.board.dto.LikeRequest;
-import esubine.community.board.dto.UpdateBoardRequest;
+import esubine.community.board.dto.*;
 import esubine.community.board.model.BoardEntity;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +19,12 @@ public class BoardController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public BoardResponse createBoard(
+    public BoardCreatedResponse createBoard(
             AuthInfo authInfo,
             @RequestBody CreateBoardRequest createBoardRequest
     ) {
         BoardEntity board = boardService.createBoard(authInfo.getUserId(), createBoardRequest);
-        return new BoardResponse(board);
+        return new BoardCreatedResponse(board);
     }
 
     @GetMapping("/{boardId}")
@@ -40,7 +38,7 @@ public class BoardController {
 
     @GetMapping
     public List<BoardResponse> getBoardByUserId(
-            @RequestParam("userId") Long userId
+            @RequestParam(value = "userId", required = false) Long userId
     ) {
         if (userId == null) {
             List<BoardEntity> boardList = boardService.getBoard();
@@ -49,20 +47,19 @@ public class BoardController {
             List<BoardEntity> boardList = boardService.getBoardByUserId(userId);
             return boardService.responseBoard(boardList);
         }
-
     }
 
     //TODO: 카테고리별 게시물 검색
 
 
     @PatchMapping("/{boardId}")
-    public BoardResponse updateBoard(
+    public EmptyResponse updateBoard(
             AuthInfo authInfo,
             @PathVariable("boardId") Long boardId,
             @RequestBody UpdateBoardRequest updateBoardRequest
     ) {
         BoardEntity board = boardService.updateBoard(authInfo.getUserId(), boardId, updateBoardRequest);
-        return new BoardResponse(board);
+        return new EmptyResponse();
     }
 
     @DeleteMapping("/{boardId}")
@@ -76,7 +73,7 @@ public class BoardController {
 
     //TODO: 게시물 좋아요 기능
     @PostMapping("/{boardId}/like")
-    public int likeBoard(
+    public BoardLikesResponse likeBoard(
             AuthInfo authInfo,
             @PathVariable("boardId") Long boardId,
             @RequestBody LikeRequest likeRequest

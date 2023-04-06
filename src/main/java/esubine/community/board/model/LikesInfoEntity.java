@@ -10,7 +10,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "board_likes_info")
+@Entity
+@Table(name = "board_likes_info")
 @EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 public class LikesInfoEntity {

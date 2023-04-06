@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name="user")
+@Entity
+@Table(name="user")
 @EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
     @Id
@@ -46,6 +47,12 @@ public class UserEntity {
         user.nickname = nickname;
         user.loginId = loginId;
         user.loginPassword = loginPassword;
+        return user;
+    }
+
+    public static UserEntity of(Long userId) {
+        UserEntity user = new UserEntity();
+        user.id = userId;
         return user;
     }
 }

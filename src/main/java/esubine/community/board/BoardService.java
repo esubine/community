@@ -1,9 +1,6 @@
 package esubine.community.board;
 
-import esubine.community.board.dto.BoardResponse;
-import esubine.community.board.dto.CreateBoardRequest;
-import esubine.community.board.dto.LikeRequest;
-import esubine.community.board.dto.UpdateBoardRequest;
+import esubine.community.board.dto.*;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
 import esubine.community.board.model.LikesInfoEntity;
@@ -41,22 +38,22 @@ public class BoardService {
 
 
     public List<BoardEntity> getBoard() {
-        return boardRepository.findAll();
+        return boardRepository.getAll();
     }
 
     public List<BoardEntity> getBoardByUserId(Long userId) {
-        return boardRepository.findByUserId(userId);
+        return boardRepository.getByUserId(userId);
     }
 
     public BoardEntity getBoardById(Long boardId) {
-        return boardRepository.findById(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
+        return boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
 //        return boardRepository.findByBoardId(boardId);
     }
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
         // TODO: userID 검증
 
-        Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 //        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
@@ -73,11 +70,11 @@ public class BoardService {
     }
 
     public BoardEntity deleteBoard(Long userId, Long boardId) {
-        Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 
-        if (userId.equals(board.getUserId())) {
+        if (userId.equals(board.getUser().getId())) {
             boardRepository.delete(board);
         } else {
             throw new AuthException("작성자만 삭제할 수 있습니다.");
@@ -85,8 +82,8 @@ public class BoardService {
         return board;
     }
 
-    public int likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
-        Optional<BoardEntity> boardOptional = boardRepository.findById(boardId);
+    public BoardLikesResponse likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 
@@ -94,26 +91,37 @@ public class BoardService {
 
     }
 
-    public int likeAdd(BoardEntity board, Long userId, Long boardId, LikeRequest likeRequest) {
+    public BoardLikesResponse likeAdd(BoardEntity board, Long userId, Long boardId, LikeRequest likeRequest) {
         int count = board.getLikes();
-        LikesInfoEntity likesInfoEntity = new LikesInfoEntity();
+        LikesInfoEntity likesInfo = new LikesInfoEntity();
 
-//TODO: 좋아요 누르기 중복으로 되지 않도록 수정
         if (likeRequest.isLike()) {
-//            if (likesInfoEntityList.getUserId().equals(userId) && likesInfoEntityList.getBoardId().equals(boardId))
-            throw new DuplicatedException("이미 좋아요를 누른 게시물입니다.");
+            if (!likesInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
+                throw new DuplicatedException("이미 좋아요를 누른 게시물입니다.");
+            } else {
+                count++;
+                board.setLikes(count);
+                likesInfo.setUserId(userId);
+                likesInfo.setBoardId(boardId);
+                boardRepository.save(board);
+                likesInfoRepository.save(likesInfo);
+            }
         } else {
-            count++;
-            board.setLikes(count);
-            likesInfoEntity.setUserId(userId);
-            likesInfoEntity.setBoardId(boardId);
-            boardRepository.save(board);
-            likesInfoRepository.save(likesInfoEntity);
+            if (!likesInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
+                count--;
+                board.setLikes(count);
+                LikesInfoEntity likesInfoEntity = likesInfoRepository.findByBoardIdAndUserId(boardId, userId);
+                boardRepository.save(board);
+                likesInfoRepository.delete(likesInfoEntity);
+            }
         }
-        return board.getLikes();
+        return new BoardLikesResponse(board);
     }
-
 }
+
+
+
+
 
 
 

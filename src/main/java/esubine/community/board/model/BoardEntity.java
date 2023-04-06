@@ -1,5 +1,6 @@
 package esubine.community.board.model;
 
+import esubine.community.user.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,9 +15,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "board")
+@Entity
+@Table(name = "board")
 @EntityListeners(AuditingEntityListener.class)
-@AllArgsConstructor
 public class BoardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +33,10 @@ public class BoardEntity {
 //    @JoinColumn(name="category_id")
 //    @ManyToOne(fetch=FetchType.LAZY)
 //    private CategoryEntity category;
-//
-//    @JoinColumn(name="user_id")
-//    @ManyToOne(fetch=FetchType.LAZY)
-//    private UserEntity user;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @JoinColumn(name= "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -61,6 +59,6 @@ public class BoardEntity {
     public BoardEntity(String title, String contents, Long userId) {
         this.title = title;
         this.contents = contents;
-        this.userId = userId;
+        this.user = UserEntity.of(userId);
     }
 }
