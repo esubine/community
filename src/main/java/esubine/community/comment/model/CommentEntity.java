@@ -1,5 +1,6 @@
 package esubine.community.comment.model;
 
+import esubine.community.user.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,14 +22,15 @@ public class CommentEntity {
     @Column(name = "board_id")
     private Long boardId;
 
-    @Column(name="user_id")
-    private Long userId;
+    @JoinColumn(name= "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
 
     @Column(name="comment")
     private String comment;
 
     public CommentEntity(Long userId, Long boardId, String comment){
-        this.userId = userId;
+        this.user = UserEntity.of(userId);
         this.boardId = boardId;
         this.comment = comment;
     }

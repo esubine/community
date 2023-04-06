@@ -5,7 +5,6 @@ import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
 import esubine.community.board.model.LikesInfoEntity;
 import esubine.community.board.model.LikesInfoRepository;
-import esubine.community.comment.model.CommentEntity;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.NoDataException;
@@ -78,9 +77,8 @@ public class BoardService {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
-
         if (userId.equals(board.getUser().getId())) {
-            boardRepository.delete(board);
+            boardRepository.deleteById(boardId);
         } else {
             throw new AuthException("작성자만 삭제할 수 있습니다.");
         }
