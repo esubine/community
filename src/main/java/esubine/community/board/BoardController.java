@@ -4,7 +4,6 @@ import esubine.community.EmptyResponse;
 import esubine.community.auth.AuthInfo;
 import esubine.community.board.dto.*;
 import esubine.community.board.model.BoardEntity;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
