@@ -36,7 +36,6 @@ public class BoardService {
         return result;
     }
 
-
     public List<BoardEntity> getBoard() {
         return boardRepository.getAll();
     }
@@ -51,22 +50,26 @@ public class BoardService {
     }
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
-        // TODO: userID 검증
 
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 //        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
-        if (updateBoardRequest.getTitle() != null) {
-            board.setTitle(updateBoardRequest.getTitle());
-        }
+        if (userId.equals(board.getUser().getId())) {
+            if (updateBoardRequest.getTitle() != null) {
+                board.setTitle(updateBoardRequest.getTitle());
+            }
 
-        if (updateBoardRequest.getContents() != null) {
-            board.setContents(updateBoardRequest.getContents());
+            if (updateBoardRequest.getContents() != null) {
+                board.setContents(updateBoardRequest.getContents());
+            }
         }
-
+        else{
+            throw new AuthException("작성자만 수정할 수 있습니다.");
+        }
         return boardRepository.save(board);
+
     }
 
     public BoardEntity deleteBoard(Long userId, Long boardId) {

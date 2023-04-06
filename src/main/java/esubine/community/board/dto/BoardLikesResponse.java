@@ -1,6 +1,5 @@
 package esubine.community.board.dto;
 
-import esubine.community.board.BoardService;
 import esubine.community.board.model.BoardEntity;
 import lombok.Getter;
 
