@@ -49,6 +49,9 @@ public class BoardEntity {
     @Column(name="likes")
     private int likes;
 
+    @Column(name="reports")
+    private int reports;
+
     public static BoardEntity of(String title, String contents) {
         BoardEntity board = new BoardEntity();
         board.title = title;

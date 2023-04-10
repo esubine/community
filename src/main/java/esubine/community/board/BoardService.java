@@ -1,10 +1,8 @@
 package esubine.community.board;
 
+import esubine.community.EmptyResponse;
 import esubine.community.board.dto.*;
-import esubine.community.board.model.BoardEntity;
-import esubine.community.board.model.BoardRepository;
-import esubine.community.board.model.LikesInfoEntity;
-import esubine.community.board.model.LikesInfoRepository;
+import esubine.community.board.model.*;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.NoDataException;
@@ -21,6 +19,7 @@ import java.util.Optional;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final LikesInfoRepository likesInfoRepository;
+    private final BoardReportInfoRepository boardReportInfoRepository;
 
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest) {
         BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId);
@@ -53,8 +52,15 @@ public class BoardService {
     }
 
     public BoardEntity getBoardById(Long boardId) {
-        return boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
+        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
+        BoardEntity board = boardOptional.get();
+        if (board.getReports() > 5) {
+            throw new AuthException("신고된 게시물입니다.");
+        } else {
+            return boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
 //        return boardRepository.findByBoardId(boardId);
+        }
     }
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
@@ -62,7 +68,6 @@ public class BoardService {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
-//        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
         if (userId.equals(board.getUser().getId())) {
             if (updateBoardRequest.getTitle() != null) {
@@ -72,8 +77,7 @@ public class BoardService {
             if (updateBoardRequest.getContents() != null) {
                 board.setContents(updateBoardRequest.getContents());
             }
-        }
-        else{
+        } else {
             throw new AuthException("작성자만 수정할 수 있습니다.");
         }
         return boardRepository.save(board);
@@ -122,13 +126,52 @@ public class BoardService {
         } else {
             if (!likesInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
                 count--;
-                board.setLikes(count);
+                if (board.getLikes() <= 0) {
+                    board.setLikes(0);
+                } else {
+                    board.setLikes(count);
+                }
                 LikesInfoEntity likesInfoEntity = likesInfoRepository.findByBoardIdAndUserId(boardId, userId);
                 boardRepository.save(board);
                 likesInfoRepository.delete(likesInfoEntity);
             }
         }
         return new BoardLikesResponse(board);
+    }
+
+    //TODO: 신고 누적 수에 따라 게시물 처리
+    public EmptyResponse reportBoard(Long userId, Long boardId, ReportRequest reportRequest) {
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
+        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+
+        int count = board.getReports();
+        BoardReportInfoEntity boardReportInfoEntity = new BoardReportInfoEntity();
+
+        if (reportRequest.isReport()) {
+            if (!boardReportInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
+                throw new DuplicatedException("이미 신고한 게시물입니다.");
+            } else {
+                count++;
+                board.setReports(count);
+                boardReportInfoEntity.setUserId(userId);
+                boardReportInfoEntity.setBoardId(boardId);
+                boardRepository.save(board);
+                boardReportInfoRepository.save(boardReportInfoEntity);
+            }
+        } else {
+            if (!boardReportInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
+                count--;
+                if (board.getReports() <= 0) {
+                    board.setReports(0);
+                } else {
+                    board.setReports(count);
+                }
+                BoardReportInfoEntity BoardReportInfoEntity = boardReportInfoRepository.findByBoardIdAndUserId(boardId, userId);
+                boardRepository.save(board);
+                boardReportInfoRepository.delete(BoardReportInfoEntity);
+            }
+        }
+        return new EmptyResponse();
     }
 }
 

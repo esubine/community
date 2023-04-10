@@ -85,7 +85,15 @@ public class BoardController {
     }
 
     //TODO: 게시물 신고
-
+    @PostMapping("{boardId}/report")
+    public EmptyResponse reportBoard(
+            AuthInfo authInfo,
+            @PathVariable("boardId") Long boardId,
+            @RequestBody ReportRequest reportRequest
+    ){
+        boardService.reportBoard(authInfo.getUserId(), boardId, reportRequest);
+        return new EmptyResponse();
+    }
 }
 
 
