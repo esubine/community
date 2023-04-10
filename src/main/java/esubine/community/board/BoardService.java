@@ -9,6 +9,7 @@ import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.NoDataException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,12 +37,17 @@ public class BoardService {
         return result;
     }
 
-    public List<BoardEntity> getBoard() {
-        return boardRepository.getAll();
+    public List<BoardEntity> getBoard(Pageable pageable) {
+        return boardRepository.getAll(pageable);
     }
 
-    public List<BoardEntity> getBoardByUserId(Long userId) {
-        return boardRepository.getByUserId(userId);
+    public List<BoardEntity> getBoardByUserId(Pageable pageable, Long userId) {
+        List<BoardEntity> boards = boardRepository.getByUserId(pageable, userId);
+
+
+
+
+        return boardRepository.getByUserId(pageable, userId);
     }
 
     public BoardEntity getBoardById(Long boardId) {

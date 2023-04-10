@@ -8,6 +8,7 @@ import esubine.community.comment.model.CommentRepository;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.NoDataException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,8 +52,8 @@ public class CommentService {
         return new EmptyResponse();
     }
 
-    public List<CommentEntity> getCommentByBoardId(Long boardId) {
-        List<CommentEntity> commentEntityList = commentRepository.getAllByBoardId(boardId);
+    public List<CommentEntity> getCommentByBoardId(Long boardId, Pageable pageable) {
+        List<CommentEntity> commentEntityList = commentRepository.getAllByBoardId(boardId, pageable);
         if (commentEntityList.isEmpty()) {
             throw new NoDataException("작성된 댓글이 없습니다.");
         }
@@ -69,8 +70,8 @@ public class CommentService {
         return result;
     }
 
-    public List<CommentEntity> getCommentByUserId(Long userId) {
-        List<CommentEntity> commentEntityList = commentRepository.getAllByUserId(userId);
+    public List<CommentEntity> getCommentByUserId(Long userId, Pageable pageable) {
+        List<CommentEntity> commentEntityList = commentRepository.getAllByUserId(userId, pageable);
         if (commentEntityList.isEmpty()) {
             throw new NoDataException("작성한 댓글이 없습니다.");
         }

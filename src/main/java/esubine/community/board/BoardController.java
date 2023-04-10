@@ -5,6 +5,8 @@ import esubine.community.auth.AuthInfo;
 import esubine.community.board.dto.*;
 import esubine.community.board.model.BoardEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,13 +39,15 @@ public class BoardController {
 
     @GetMapping
     public List<BoardResponse> getBoardByUserId(
-            @RequestParam(value = "userId", required = false) Long userId
+            @RequestParam(value = "userId", required = false) Long userId,
+            @PageableDefault(page = 0, size = 5)
+            Pageable pageable
     ) {
         if (userId == null) {
-            List<BoardEntity> boardList = boardService.getBoard();
+            List<BoardEntity> boardList = boardService.getBoard(pageable);
             return boardService.responseBoard(boardList);
         } else {
-            List<BoardEntity> boardList = boardService.getBoardByUserId(userId);
+            List<BoardEntity> boardList = boardService.getBoardByUserId(pageable,userId);
             return boardService.responseBoard(boardList);
         }
     }
