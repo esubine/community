@@ -28,13 +28,15 @@ public class BoardService {
     }
 
     public List<BoardResponse> responseBoard(List<BoardEntity> boardList) {
-        List<BoardResponse> result = new ArrayList<>();
-        for (int i = 0; i < boardList.size(); i++) {
-            BoardEntity board = boardList.get(i);
-            BoardResponse boardResponse = new BoardResponse(board);
-            result.add(boardResponse);
-        }
-        return result;
+        return boardList.stream().map(BoardResponse::new).toList();
+
+//        List<BoardResponse> result = new ArrayList<>();
+//        for (int i = 0; i < boardList.size(); i++) {
+//            BoardEntity board = boardList.get(i);
+//            BoardResponse boardResponse = new BoardResponse(board);
+//            result.add(boardResponse);
+//        }
+//        return result;
     }
 
     public List<BoardEntity> getBoard(Pageable pageable) {
