@@ -5,8 +5,11 @@ import esubine.community.board.dto.*;
 import esubine.community.board.model.*;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
+import esubine.community.exception.MisMatchException;
 import esubine.community.exception.NoDataException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
-    private final LikesInfoRepository likesInfoRepository;
+    private final LikeInfoRepository likeInfoRepository;
     private final BoardReportInfoRepository boardReportInfoRepository;
 
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest) {
@@ -43,8 +46,6 @@ public class BoardService {
 
     public List<BoardEntity> getBoardByUserId(Pageable pageable, Long userId) {
         List<BoardEntity> boards = boardRepository.getByUserId(pageable, userId);
-
-
 
 
         return boardRepository.getByUserId(pageable, userId);
@@ -99,43 +100,32 @@ public class BoardService {
         return board;
     }
 
-    public BoardLikesResponse likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
+    @Transactional
+    public EmptyResponse likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
-        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+        boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
-        return likeAdd(board, userId, boardId, likeRequest);
-
-    }
-
-    public BoardLikesResponse likeAdd(BoardEntity board, Long userId, Long boardId, LikeRequest likeRequest) {
-        int count = board.getLikeCount();
-        LikesInfoEntity likesInfo = new LikesInfoEntity();
+        LikeInfoEntity likesInfo = likeInfoRepository.findByBoardIdAndUserId(boardId, userId);
+        if (likesInfo == null && !likeRequest.isLike()) throw new MisMatchException("좋아요를 안눌렀는데 어떻게 좋아요 취소하나요.");
 
         if (likeRequest.isLike()) {
-            if (!likesInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
+            if (likesInfo != null) {
                 throw new DuplicatedException("이미 좋아요를 누른 게시물입니다.");
             } else {
-                count++;
-                board.setLikeCount(count);
-                likesInfo.setUserId(userId);
-                likesInfo.setBoardId(boardId);
-                boardRepository.save(board);
-                likesInfoRepository.save(likesInfo);
+                LikeInfoEntity likeInfo = new LikeInfoEntity(userId, boardId);
+                boardRepository.increaseLikeCount(boardId);
+                try {
+                    likeInfoRepository.save(likeInfo);
+                } catch (DataIntegrityViolationException e) {
+                    throw new DuplicatedException("이미 좋아요를 누른 게시물입니다.");
+                }
             }
         } else {
-            if (!likesInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
-                count--;
-                if (board.getLikeCount() <= 0) {
-                    board.setLikeCount(0);
-                } else {
-                    board.setLikeCount(count);
-                }
-                LikesInfoEntity likesInfoEntity = likesInfoRepository.findByBoardIdAndUserId(boardId, userId);
-                boardRepository.save(board);
-                likesInfoRepository.delete(likesInfoEntity);
-            }
+            boardRepository.decreaseLikeCount(boardId);
+            int affectedRow = likeInfoRepository.deleteAndGetResult(likesInfo);
+            if (affectedRow == 0) throw new DuplicatedException("좋아요를 안눌렀는데 어떻게 좋아요 취소하나요.");
         }
-        return new BoardLikesResponse(board);
+        return new EmptyResponse();
     }
 
     //TODO: 신고 누적 수에 따라 게시물 처리

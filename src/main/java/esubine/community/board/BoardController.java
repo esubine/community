@@ -76,7 +76,7 @@ public class BoardController {
 
     //TODO: 게시물 좋아요 기능
     @PostMapping("/{boardId}/like")
-    public BoardLikesResponse likeBoard(
+    public EmptyResponse likeBoard(
             AuthInfo authInfo,
             @PathVariable("boardId") Long boardId,
             @RequestBody LikeRequest likeRequest

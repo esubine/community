@@ -2,6 +2,7 @@ package esubine.community.board.model;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -23,9 +24,15 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
             "WHERE b.boardId=:boardId ")
     Optional<BoardEntity> getByBoardId(Long boardId);
 
-    
+    @Query("UPDATE BoardEntity b " +
+            "SET b.likeCount = b.likeCount+1 " +
+            "WHERE b.boardId=:boardId ")
+    @Modifying
+    void increaseLikeCount(Long boardId);
 
-
-
-
+    @Query("UPDATE BoardEntity b " +
+            "SET b.likeCount = b.likeCount-1 " +
+            "WHERE b.boardId=:boardId ")
+    @Modifying
+    void decreaseLikeCount(Long boardId);
 }
