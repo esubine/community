@@ -7,6 +7,7 @@ import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.MisMatchException;
 import esubine.community.exception.NoDataException;
+import esubine.community.user.model.BlockUserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +23,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final LikeInfoRepository likeInfoRepository;
     private final BoardReportInfoRepository boardReportInfoRepository;
+    private final BlockUserRepository blockUserRepository;
 
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest) {
         BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId);
@@ -40,21 +42,28 @@ public class BoardService {
 //        return result;
     }
 
-    public List<BoardEntity> getBoard(Pageable pageable) {
-        return boardRepository.getAll(pageable);
+    public List<BoardEntity> getBoard(Pageable pageable, Long userId) {
+        return boardRepository.getAll(pageable, userId);
     }
 
-    public List<BoardEntity> getBoardByUserId(Pageable pageable, Long userId) {
-        List<BoardEntity> boards = boardRepository.getByUserId(pageable, userId);
+    public List<BoardEntity> getBoardByUserId(Pageable pageable, Long userId, Long requesterId) {
 
-
-        return boardRepository.getByUserId(pageable, userId);
+        if (blockUserRepository.findByRequesterIdAndTargetId(requesterId, userId).isPresent()) {
+            throw new AuthException("차단한 유저입니다.");
+        } else {
+//            List<BoardEntity> boards = boardRepository.getByUserId(pageable, userId, requesterId);
+            return boardRepository.getByUserId(pageable, userId);
+        }
     }
 
-    public BoardEntity getBoardById(Long boardId) {
+    public BoardEntity getBoardById(Long boardId, Long requesterId) {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
+
+        if(blockUserRepository.findByRequesterIdAndTargetId(requesterId, board.getUser().getId()).isPresent()){
+            throw new AuthException("차단한 유저의 게시물입니다.");
+        }
         if (board.getReportCount() > 5) {
             throw new AuthException("신고된 게시물입니다.");
         } else {

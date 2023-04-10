@@ -3,7 +3,6 @@ package esubine.community.board.dto;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.user.dto.UserResponse;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 

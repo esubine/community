@@ -3,6 +3,9 @@ package esubine.community.user;
 import esubine.community.EmptyResponse;
 import esubine.community.auth.model.TokenEntity;
 import esubine.community.auth.model.TokenRepository;
+import esubine.community.board.model.BoardEntity;
+import esubine.community.user.model.BlockUserEntity;
+import esubine.community.user.model.BlockUserRepository;
 import esubine.community.user.model.UserEntity;
 import esubine.community.user.model.UserRepository;
 import esubine.community.exception.AuthException;
@@ -16,11 +19,14 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final BlockUserRepository blockUserRepository;
 
     public UserEntity createUser(CreateUserRequest createUserRequest) {
         if (userRepository.findByLoginId(createUserRequest.getLoginId()) != null) {
@@ -70,7 +76,7 @@ public class UserService {
     }
 
     public EmptyResponse updatePassword(Long userId, UpdatePasswordRequest updatePasswordRequest) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
         if (user.getLoginPassword().equals(updatePasswordRequest.getPresentPassword())) {
             user.setLoginPassword(updatePasswordRequest.getNewPassword());
             userRepository.save(user);
@@ -80,4 +86,32 @@ public class UserService {
         }
         return new EmptyResponse();
     }
+
+    public EmptyResponse blockUser(Long requesterId, Long targetId) {
+        UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
+        Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
+        UserEntity user = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+
+        if (blockUser.isPresent()) {
+            throw new AuthException("이미 차단한 유저입니다.");
+        } else {
+            BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
+            blockUserRepository.save(blockUserEntity);
+            return new EmptyResponse();
+        }
+    }
+
+//    public EmptyResponse unblockUser(Long requesterId, Long targetId){
+//        UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
+//        Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
+//        UserEntity user = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+//
+//        if (blockUser.isPresent()) {
+//            BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
+//            blockUserRepository.delete(blockUserEntity);
+//            return new EmptyResponse();
+//        } else {
+//            throw new AuthException("차단한 적 없는 유저입니다.");
+//        }
+//    }
 }

@@ -30,9 +30,10 @@ public class BoardController {
 
     @GetMapping("/{boardId}")
     public BoardResponse getBoardByBoardId(
-            @PathVariable("boardId") Long boardId
+            @PathVariable("boardId") Long boardId,
+            AuthInfo authInfo
     ) {
-        BoardEntity board = boardService.getBoardById(boardId);
+        BoardEntity board = boardService.getBoardById(boardId, authInfo.getUserId());
         BoardResponse boardResponse = new BoardResponse(board);
         return boardResponse;
     }
@@ -41,13 +42,14 @@ public class BoardController {
     public List<BoardResponse> getBoardByUserId(
             @RequestParam(value = "userId", required = false) Long userId,
             @PageableDefault(page = 0, size = 5)
-            Pageable pageable
+            Pageable pageable,
+            AuthInfo authInfo
     ) {
         if (userId == null) {
-            List<BoardEntity> boardList = boardService.getBoard(pageable);
+            List<BoardEntity> boardList = boardService.getBoard(pageable, authInfo.getUserId());
             return boardService.responseBoard(boardList);
         } else {
-            List<BoardEntity> boardList = boardService.getBoardByUserId(pageable,userId);
+            List<BoardEntity> boardList = boardService.getBoardByUserId(pageable,userId, authInfo.getUserId());
             return boardService.responseBoard(boardList);
         }
     }

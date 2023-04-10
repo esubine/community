@@ -35,7 +35,6 @@ public class UserController {
         return userService.updatePassword(authInfo.getUserId(), updatePasswordRequest);
     }
 
-
     @GetMapping("/{id}")
     public UserResponse getUserInfo(
             @PathVariable("id") Long id
@@ -61,5 +60,13 @@ public class UserController {
 
     //TODO: 비밀번호 찾기
 
-
+    //TODO: 유저 차단
+    @PostMapping("/block/{userId}")
+    public EmptyResponse blockUser(
+            AuthInfo authInfo,
+            @PathVariable("userId") Long targetId
+    ){
+        userService.blockUser(authInfo.getUserId(), targetId);
+        return new EmptyResponse();
+    }
 }

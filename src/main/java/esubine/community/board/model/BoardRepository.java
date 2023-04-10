@@ -15,14 +15,26 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
             "WHERE b.user.id=:userId ")
     List<BoardEntity> getByUserId(Pageable pageable, Long userId);
 
-    @Query("SELECT b FROM BoardEntity b " +
-            "LEFT JOIN FETCH b.user ")
-    List<BoardEntity> getAll(Pageable pageable);
 
-    @Query("SELECT b FROM BoardEntity b " +
-            "LEFT JOIN FETCH b.user " +
+    @Query("SELECT b, u FROM BoardEntity b " +
+            "LEFT JOIN b.user u " +
+            "LEFT JOIN BlockUserEntity bu ON b.user.id = bu.targetId " +
+            "WHERE bu.blockUserId IS NULL ")
+    List<BoardEntity> getAll(Pageable pageable, Long userId);
+
+    @Query("SELECT b, u FROM BoardEntity b " +
+            "LEFT JOIN b.user u " +
+            "LEFT JOIN BlockUserEntity bu ON b.user.id = bu.targetId "+
             "WHERE b.boardId=:boardId ")
     Optional<BoardEntity> getByBoardId(Long boardId);
+
+//    @Query("SELECT b FROM BoardEntity b " +
+//            "LEFT JOIN FETCH b.user " +
+//            "WHERE b.boardId=:boardId ")
+//    Optional<BoardEntity> getByBoardId(Long boardId);
+
+
+
 
     @Query("UPDATE BoardEntity b " +
             "SET b.likeCount = b.likeCount+1 " +
