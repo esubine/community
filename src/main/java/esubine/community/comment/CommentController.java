@@ -24,10 +24,12 @@ public class CommentController {
     public EmptyResponse createComment(
             AuthInfo authInfo,
             @RequestParam(value = "boardId") Long boardId,
+            @RequestParam(value = "commentId") Long commentId,
             @RequestBody CommentRequest commentRequest
     ) {
-        return commentService.createComment(authInfo.getUserId(), boardId, commentRequest);
+        return commentService.createComment(authInfo.getUserId(), boardId, commentId, commentRequest);
     }
+
 
     @PatchMapping("/{commentId}")
     public EmptyResponse updateComment(
@@ -61,7 +63,7 @@ public class CommentController {
             AuthInfo authInfo,
             @PageableDefault(page = 0, size = 5)
             Pageable pageable
-    ){
+    ) {
         List<CommentEntity> commentEntityList = commentService.getCommentByUserId(authInfo.getUserId(), pageable);
         return commentService.responseBoard(commentEntityList);
     }

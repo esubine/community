@@ -22,6 +22,9 @@ public class CommentEntity {
     @Column(name = "board_id")
     private Long boardId;
 
+    @Column(name="parent_comment_id")
+    private Long parentCommentId;
+
     @JoinColumn(name= "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity user;
@@ -29,9 +32,10 @@ public class CommentEntity {
     @Column(name="comment")
     private String comment;
 
-    public CommentEntity(Long userId, Long boardId, String comment){
+    public CommentEntity(Long userId, Long boardId, Long commentId, String comment){
         this.user = UserEntity.of(userId);
         this.boardId = boardId;
+        this.parentCommentId = commentId;
         this.comment = comment;
     }
 }

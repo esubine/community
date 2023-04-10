@@ -20,8 +20,8 @@ import java.util.Optional;
 public class CommentService {
     private final CommentRepository commentRepository;
 
-    public EmptyResponse createComment(Long userId, Long boardId, CommentRequest createCommentRequest) {
-        CommentEntity comment = new CommentEntity(userId, boardId, createCommentRequest.getComment());
+    public EmptyResponse createComment(Long userId, Long boardId, Long commentId, CommentRequest createCommentRequest) {
+        CommentEntity comment = new CommentEntity(userId, boardId, commentId, createCommentRequest.getComment());
         commentRepository.save(comment);
         return new EmptyResponse();
     }
