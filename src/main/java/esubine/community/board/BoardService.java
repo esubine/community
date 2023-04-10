@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,7 +54,7 @@ public class BoardService {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
-        if (board.getReports() > 5) {
+        if (board.getReportCount() > 5) {
             throw new AuthException("신고된 게시물입니다.");
         } else {
             return boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
@@ -109,7 +108,7 @@ public class BoardService {
     }
 
     public BoardLikesResponse likeAdd(BoardEntity board, Long userId, Long boardId, LikeRequest likeRequest) {
-        int count = board.getLikes();
+        int count = board.getLikeCount();
         LikesInfoEntity likesInfo = new LikesInfoEntity();
 
         if (likeRequest.isLike()) {
@@ -117,7 +116,7 @@ public class BoardService {
                 throw new DuplicatedException("이미 좋아요를 누른 게시물입니다.");
             } else {
                 count++;
-                board.setLikes(count);
+                board.setLikeCount(count);
                 likesInfo.setUserId(userId);
                 likesInfo.setBoardId(boardId);
                 boardRepository.save(board);
@@ -126,10 +125,10 @@ public class BoardService {
         } else {
             if (!likesInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
                 count--;
-                if (board.getLikes() <= 0) {
-                    board.setLikes(0);
+                if (board.getLikeCount() <= 0) {
+                    board.setLikeCount(0);
                 } else {
-                    board.setLikes(count);
+                    board.setLikeCount(count);
                 }
                 LikesInfoEntity likesInfoEntity = likesInfoRepository.findByBoardIdAndUserId(boardId, userId);
                 boardRepository.save(board);
@@ -144,7 +143,7 @@ public class BoardService {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
-        int count = board.getReports();
+        int count = board.getReportCount();
         BoardReportInfoEntity boardReportInfoEntity = new BoardReportInfoEntity();
 
         if (reportRequest.isReport()) {
@@ -152,7 +151,7 @@ public class BoardService {
                 throw new DuplicatedException("이미 신고한 게시물입니다.");
             } else {
                 count++;
-                board.setReports(count);
+                board.setReportCount(count);
                 boardReportInfoEntity.setUserId(userId);
                 boardReportInfoEntity.setBoardId(boardId);
                 boardRepository.save(board);
@@ -161,10 +160,10 @@ public class BoardService {
         } else {
             if (!boardReportInfoRepository.findAllByBoardIdAndUserId(boardId, userId).isEmpty()) {
                 count--;
-                if (board.getReports() <= 0) {
-                    board.setReports(0);
+                if (board.getReportCount() <= 0) {
+                    board.setReportCount(0);
                 } else {
-                    board.setReports(count);
+                    board.setReportCount(count);
                 }
                 BoardReportInfoEntity BoardReportInfoEntity = boardReportInfoRepository.findByBoardIdAndUserId(boardId, userId);
                 boardRepository.save(board);

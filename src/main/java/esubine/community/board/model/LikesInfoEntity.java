@@ -17,8 +17,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class LikesInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "like_id")
-    private Long likeId;
+    @Column(name = "board_like_info_id")
+    private Long boardLikeInfoId;
 
     @Column(name="user_id")
     private Long userId;

@@ -8,6 +8,6 @@ public class BoardLikesResponse {
     private final int likes;
 
     public BoardLikesResponse(BoardEntity board){
-        this.likes = board.getLikes();
+        this.likes = board.getLikeCount();
     }
 }

@@ -2,7 +2,6 @@ package esubine.community.board.model;
 
 import esubine.community.user.model.UserEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -46,11 +45,11 @@ public class BoardEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name="likes")
-    private int likes;
+    @Column(name="like_count")
+    private int likeCount;
 
-    @Column(name="reports")
-    private int reports;
+    @Column(name="report_count")
+    private int reportCount;
 
     public static BoardEntity of(String title, String contents) {
         BoardEntity board = new BoardEntity();

@@ -23,6 +23,8 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
             "WHERE b.boardId=:boardId ")
     Optional<BoardEntity> getByBoardId(Long boardId);
 
+    
+
 
 
 
