@@ -3,6 +3,8 @@ package esubine.community.board;
 import esubine.community.EmptyResponse;
 import esubine.community.board.dto.*;
 import esubine.community.board.model.*;
+import esubine.community.category.model.CategoryEntity;
+import esubine.community.category.model.CategoryRepository;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.MisMatchException;
@@ -24,10 +26,15 @@ public class BoardService {
     private final LikeInfoRepository likeInfoRepository;
     private final BoardReportInfoRepository boardReportInfoRepository;
     private final BlockUserRepository blockUserRepository;
+    private final CategoryRepository categoryRepository;
 
-    public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest) {
-        BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId);
-        return boardRepository.save(board);
+    public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest, Long categoryId) {
+        Optional<CategoryEntity> category = categoryRepository.findById(categoryId);
+        if (category.isEmpty()) throw new NoDataException("해당 카테고리가 존재하지 않습니다.");
+        else {
+            BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId, categoryId);
+            return boardRepository.save(board);
+        }
     }
 
     public List<BoardResponse> responseBoard(List<BoardEntity> boardList) {
@@ -61,7 +68,7 @@ public class BoardService {
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 
-        if(blockUserRepository.findByRequesterIdAndTargetId(requesterId, board.getUser().getId()).isPresent()){
+        if (blockUserRepository.findByRequesterIdAndTargetId(requesterId, board.getUser().getId()).isPresent()) {
             throw new AuthException("차단한 유저의 게시물입니다.");
         }
         if (board.getReportCount() > 5) {
@@ -71,6 +78,12 @@ public class BoardService {
 //        return boardRepository.findByBoardId(boardId);
         }
     }
+
+    public List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable, Long requesterId){
+        return boardRepository.getByCategoryId(categoryId, pageable);
+    }
+
+
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
 
@@ -85,6 +98,10 @@ public class BoardService {
 
             if (updateBoardRequest.getContents() != null) {
                 board.setContents(updateBoardRequest.getContents());
+            }
+            if(updateBoardRequest.getCategoryId()!=null){
+                categoryRepository.findById(updateBoardRequest.getCategoryId()).orElseThrow(()->new NoDataException("없는 카테고리입니다."));
+                board.setBoardCategoryId(updateBoardRequest.getCategoryId());
             }
         } else {
             throw new AuthException("작성자만 수정할 수 있습니다.");
@@ -171,6 +188,7 @@ public class BoardService {
         }
         return new EmptyResponse();
     }
+
 }
 
 

@@ -17,6 +17,5 @@ public class CommentResponse {
         this.comment = comment.getComment();
         this.boardId = comment.getBoardId();
         this.user = new UserResponse(comment.getUser());
-
     }
 }

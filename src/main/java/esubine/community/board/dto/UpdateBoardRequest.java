@@ -8,5 +8,6 @@ import lombok.Setter;
 public class UpdateBoardRequest {
     private String title;
     private String contents;
+    private Long categoryId;
 
 }

@@ -22,9 +22,10 @@ public class BoardController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public BoardCreatedResponse createBoard(
             AuthInfo authInfo,
-            @RequestBody CreateBoardRequest createBoardRequest
+            @RequestBody CreateBoardRequest createBoardRequest,
+            @RequestParam(value = "categoryId") Long categoryId
     ) {
-        BoardEntity board = boardService.createBoard(authInfo.getUserId(), createBoardRequest);
+        BoardEntity board = boardService.createBoard(authInfo.getUserId(), createBoardRequest, categoryId);
         return new BoardCreatedResponse(board);
     }
 
@@ -49,12 +50,22 @@ public class BoardController {
             List<BoardEntity> boardList = boardService.getBoard(pageable, authInfo.getUserId());
             return boardService.responseBoard(boardList);
         } else {
-            List<BoardEntity> boardList = boardService.getBoardByUserId(pageable,userId, authInfo.getUserId());
+            List<BoardEntity> boardList = boardService.getBoardByUserId(pageable, userId, authInfo.getUserId());
             return boardService.responseBoard(boardList);
         }
     }
 
     //TODO: 카테고리별 게시물 검색
+    @GetMapping("/category")
+    public List<BoardResponse> getByCategoryId(
+            @RequestParam("id") Long categoryId,
+            AuthInfo authInfo,
+            @PageableDefault(page = 0, size = 5)
+            Pageable pageable
+    ) {
+        List<BoardEntity> boardEntityList = boardService.getByCategoryId(categoryId, pageable, authInfo.getUserId());
+        return boardService.responseBoard(boardEntityList);
+    }
 
 
     @PatchMapping("/{boardId}")
@@ -76,7 +87,6 @@ public class BoardController {
         return new EmptyResponse();
     }
 
-    //TODO: 게시물 좋아요 기능
     @PostMapping("/{boardId}/like")
     public EmptyResponse likeBoard(
             AuthInfo authInfo,
@@ -86,13 +96,12 @@ public class BoardController {
         return boardService.likeBoard(authInfo.getUserId(), boardId, likeRequest);
     }
 
-    //TODO: 게시물 신고
     @PostMapping("{boardId}/report")
     public EmptyResponse reportBoard(
             AuthInfo authInfo,
             @PathVariable("boardId") Long boardId,
             @RequestBody ReportRequest reportRequest
-    ){
+    ) {
         boardService.reportBoard(authInfo.getUserId(), boardId, reportRequest);
         return new EmptyResponse();
     }

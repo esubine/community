@@ -1,5 +1,6 @@
 package esubine.community.board.model;
 
+import esubine.community.category.model.CategoryEntity;
 import esubine.community.user.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,9 +30,9 @@ public class BoardEntity {
     @Column(name = "contents")
     private String contents;
 
-//    @JoinColumn(name="category_id")
-//    @ManyToOne(fetch=FetchType.LAZY)
-//    private CategoryEntity category;
+    @JoinColumn(name="category_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    private CategoryEntity category;
 
     @JoinColumn(name= "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,9 +59,16 @@ public class BoardEntity {
         return board;
     }
 
-    public BoardEntity(String title, String contents, Long userId) {
+    public BoardEntity(String title, String contents, Long userId, Long categoryId) {
         this.title = title;
         this.contents = contents;
         this.user = UserEntity.of(userId);
+        setBoardCategoryId(categoryId);
     }
+    public void setBoardCategoryId(Long categoryId){
+        this.category = new CategoryEntity();
+        this.category.setCategoryId(categoryId);
+    }
+
+
 }
