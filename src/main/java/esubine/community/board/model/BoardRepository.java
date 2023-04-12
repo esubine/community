@@ -10,24 +10,24 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 
-    @Query("SELECT b, c FROM BoardEntity b " +
+    @Query("SELECT b FROM BoardEntity b " +
             "LEFT JOIN FETCH b.user " +
-            "LEFT JOIN b.category c "+
+            "LEFT JOIN FETCH b.category c "+
             "WHERE b.user.id=:userId ")
     List<BoardEntity> getByUserId(Pageable pageable, Long userId);
 
 
-    @Query("SELECT b, u, c FROM BoardEntity b " +
-            "LEFT JOIN b.user u " +
-            "LEFT JOIN b.category c "+
-            "LEFT JOIN BlockUserEntity bu ON b.user.id = bu.targetId " +
+    @Query("SELECT b FROM BoardEntity b " +
+            "LEFT JOIN FETCH b.user u " +
+            "LEFT JOIN FETCH b.category c "+
+            "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId AND bu.requesterId=:userId " +
             "WHERE bu.blockUserId IS NULL ")
     List<BoardEntity> getAll(Pageable pageable, Long userId);
 
-    @Query("SELECT b, u, c FROM BoardEntity b " +
-            "LEFT JOIN b.user u " +
-            "LEFT JOIN BlockUserEntity bu ON b.user.id = bu.targetId "+
-            "LEFT JOIN b.category c "+
+    @Query("SELECT b FROM BoardEntity b " +
+            "LEFT JOIN FETCH b.user u " +
+            "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId "+
+            "LEFT JOIN FETCH b.category c "+
             "WHERE b.boardId=:boardId ")
     Optional<BoardEntity> getByBoardId(Long boardId);
 
@@ -36,13 +36,13 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 //            "WHERE b.boardId=:boardId ")
 //    Optional<BoardEntity> getByBoardId(Long boardId);
 
-    @Query("SELECT b, u, c FROM BoardEntity b " +
-            "LEFT JOIN b.user u " +
-            "LEFT JOIN b.category c " +
-            "LEFT JOIN BlockUserEntity bu ON b.user.id = bu.targetId " +
+    @Query("SELECT b FROM BoardEntity b " +
+            "LEFT JOIN FETCH b.user u " +
+            "LEFT JOIN FETCH b.category c " +
+            "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId AND bu.requesterId=:userId " +
             "WHERE b.category.categoryId=:categoryId " +
             "AND bu.blockUserId IS NULL ")
-    List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable);
+    List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable, Long userId);
 
     @Query("UPDATE BoardEntity b " +
             "SET b.likeCount = b.likeCount+1 " +

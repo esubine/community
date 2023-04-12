@@ -80,7 +80,7 @@ public class BoardService {
     }
 
     public List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable, Long requesterId){
-        return boardRepository.getByCategoryId(categoryId, pageable);
+        return boardRepository.getByCategoryId(categoryId, pageable, requesterId);
     }
 
 

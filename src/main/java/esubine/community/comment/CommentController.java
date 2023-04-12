@@ -2,6 +2,7 @@ package esubine.community.comment;
 
 import esubine.community.EmptyResponse;
 import esubine.community.auth.AuthInfo;
+import esubine.community.comment.dto.ChildCommentResponse;
 import esubine.community.comment.dto.CommentRequest;
 import esubine.community.comment.dto.CommentResponse;
 import esubine.community.comment.model.CommentEntity;
@@ -24,10 +25,10 @@ public class CommentController {
     public EmptyResponse createComment(
             AuthInfo authInfo,
             @RequestParam(value = "boardId") Long boardId,
-            @RequestParam(value = "commentId") Long commentId,
+            @RequestParam(value = "parentCommentId", required = false) Long parentCommentId,
             @RequestBody CommentRequest commentRequest
     ) {
-        return commentService.createComment(authInfo.getUserId(), boardId, commentId, commentRequest);
+        return commentService.createComment(authInfo.getUserId(), boardId, parentCommentId, commentRequest);
     }
 
 
@@ -59,13 +60,15 @@ public class CommentController {
     }
 
     @GetMapping("/user")
-    public List<CommentResponse> getCommentByUserId(
+    public List<ChildCommentResponse> getCommentByUserId(
             AuthInfo authInfo,
             @PageableDefault(page = 0, size = 5)
             Pageable pageable
     ) {
         List<CommentEntity> commentEntityList = commentService.getCommentByUserId(authInfo.getUserId(), pageable);
-        return commentService.responseBoard(commentEntityList);
+        return commentEntityList.stream()
+                .map(ChildCommentResponse::new)
+                .toList();
     }
 
 }

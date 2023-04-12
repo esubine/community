@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,6 +33,9 @@ public class CommentEntity {
 
     @Column(name="comment")
     private String comment;
+
+    @OneToMany(mappedBy = "parentCommentId", fetch = FetchType.LAZY)
+    private List<CommentEntity> children;
 
     public CommentEntity(Long userId, Long boardId, Long commentId, String comment){
         this.user = UserEntity.of(userId);
