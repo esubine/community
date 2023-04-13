@@ -1,6 +1,8 @@
 package esubine.community.board.model;
 
 import esubine.community.category.model.CategoryEntity;
+import esubine.community.hashtag.model.BoardHashTagEntity;
+import esubine.community.hashtag.model.HashTagEntity;
 import esubine.community.user.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,6 +13,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -52,6 +57,9 @@ public class BoardEntity {
     @Column(name="report_count")
     private int reportCount;
 
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<BoardHashTagEntity> boardHashTags = new ArrayList<>();
+
     public static BoardEntity of(String title, String contents) {
         BoardEntity board = new BoardEntity();
         board.title = title;
@@ -65,10 +73,18 @@ public class BoardEntity {
         this.user = UserEntity.of(userId);
         setBoardCategoryId(categoryId);
     }
+
     public void setBoardCategoryId(Long categoryId){
         this.category = new CategoryEntity();
         this.category.setCategoryId(categoryId);
     }
 
+    public void addHashTag(HashTagEntity hashTag){
+        BoardHashTagEntity boardHashTag = new BoardHashTagEntity(this, hashTag);
+        this.boardHashTags.add(boardHashTag);
+    }
 
+    public void addHashTags(Collection<HashTagEntity> hashTags){
+        hashTags.forEach(this::addHashTag);
+    }
 }

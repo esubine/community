@@ -9,6 +9,8 @@ import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.MisMatchException;
 import esubine.community.exception.NoDataException;
+import esubine.community.hashtag.HashTagService;
+import esubine.community.hashtag.model.HashTagEntity;
 import esubine.community.user.model.BlockUserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +30,19 @@ public class BoardService {
     private final BlockUserRepository blockUserRepository;
     private final CategoryRepository categoryRepository;
 
+    private final HashTagService hashTagService;
+
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest, Long categoryId) {
         Optional<CategoryEntity> category = categoryRepository.findById(categoryId);
         if (category.isEmpty()) throw new NoDataException("해당 카테고리가 존재하지 않습니다.");
-        else {
-            BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId, categoryId);
-            return boardRepository.save(board);
-        }
+
+        BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId, categoryId);
+        List<HashTagEntity> hashTagEntityList = hashTagService.convertHashTagEntity(createBoardRequest.getHashtag());
+        board.addHashTags(hashTagEntityList);
+
+        return boardRepository.save(board);
     }
+
 
     public List<BoardResponse> responseBoard(List<BoardEntity> boardList) {
         return boardList.stream().map(BoardResponse::new).toList();
@@ -79,10 +86,9 @@ public class BoardService {
         }
     }
 
-    public List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable, Long requesterId){
+    public List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable, Long requesterId) {
         return boardRepository.getByCategoryId(categoryId, pageable, requesterId);
     }
-
 
 
     public BoardEntity updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
@@ -99,8 +105,8 @@ public class BoardService {
             if (updateBoardRequest.getContents() != null) {
                 board.setContents(updateBoardRequest.getContents());
             }
-            if(updateBoardRequest.getCategoryId()!=null){
-                categoryRepository.findById(updateBoardRequest.getCategoryId()).orElseThrow(()->new NoDataException("없는 카테고리입니다."));
+            if (updateBoardRequest.getCategoryId() != null) {
+                categoryRepository.findById(updateBoardRequest.getCategoryId()).orElseThrow(() -> new NoDataException("없는 카테고리입니다."));
                 board.setBoardCategoryId(updateBoardRequest.getCategoryId());
             }
         } else {
