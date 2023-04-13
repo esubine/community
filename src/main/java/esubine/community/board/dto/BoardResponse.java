@@ -6,6 +6,7 @@ import esubine.community.user.dto.UserResponse;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class BoardResponse {
@@ -17,6 +18,8 @@ public class BoardResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    private final List<String> hashtags;
+
     public BoardResponse(BoardEntity board) {
         this.boardId = board.getBoardId();
         this.title = board.getTitle();
@@ -25,6 +28,7 @@ public class BoardResponse {
         this.category= new CategoryResponse(board.getCategory());
         this.createdAt = board.getCreatedAt();
         this.updatedAt = board.getUpdatedAt();
+        this.hashtags = board.getHashTagNames();
     }
 
 }

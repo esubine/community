@@ -37,7 +37,7 @@ public class BoardService {
         if (category.isEmpty()) throw new NoDataException("해당 카테고리가 존재하지 않습니다.");
 
         BoardEntity board = new BoardEntity(createBoardRequest.getTitle(), createBoardRequest.getContents(), userId, categoryId);
-        List<HashTagEntity> hashTagEntityList = hashTagService.convertHashTagEntity(createBoardRequest.getHashtag());
+        List<HashTagEntity> hashTagEntityList = hashTagService.convertHashTagEntity(createBoardRequest.getHashtags());
         board.addHashTags(hashTagEntityList);
 
         return boardRepository.save(board);

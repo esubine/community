@@ -5,6 +5,7 @@ import esubine.community.hashtag.model.BoardHashTagEntity;
 import esubine.community.hashtag.model.HashTagEntity;
 import esubine.community.user.model.UserEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -57,8 +58,9 @@ public class BoardEntity {
     @Column(name="report_count")
     private int reportCount;
 
+    @Getter(AccessLevel.PRIVATE)
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<BoardHashTagEntity> boardHashTags = new ArrayList<>();
+    private final List<BoardHashTagEntity> boardHashTags = new ArrayList<>();
 
     public static BoardEntity of(String title, String contents) {
         BoardEntity board = new BoardEntity();
@@ -86,5 +88,16 @@ public class BoardEntity {
 
     public void addHashTags(Collection<HashTagEntity> hashTags){
         hashTags.forEach(this::addHashTag);
+    }
+
+    public List<String> getHashTagNames(){
+        return boardHashTags.stream()
+//                .map(BoardHashTagEntity::getHashtag)
+//                .map(HashTagEntity::getName)
+                ///////
+//                .map((e)->e.getHashtag())
+//                .map((e)->e.getName())
+                .map((e)->e.getHashtag().getName())
+                .toList();
     }
 }

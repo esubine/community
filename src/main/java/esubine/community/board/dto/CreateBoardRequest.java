@@ -9,7 +9,7 @@ import java.util.List;
 public class CreateBoardRequest {
     private String title;
     private String contents;
-    private List<String> hashtag = new ArrayList<>();
+    private List<String> hashtags = new ArrayList<>();
 
     public BoardEntity toEntity() {
         return BoardEntity.of(

@@ -25,9 +25,10 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     List<BoardEntity> getAll(Pageable pageable, Long userId);
 
     @Query("SELECT b FROM BoardEntity b " +
-            "LEFT JOIN FETCH b.user u " +
+            "LEFT JOIN FETCH b.user " +
             "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId "+
-            "LEFT JOIN FETCH b.category c "+
+            "LEFT JOIN FETCH b.category " +
+            "LEFT JOIN FETCH b.boardHashTags "+
             "WHERE b.boardId=:boardId ")
     Optional<BoardEntity> getByBoardId(Long boardId);
 
