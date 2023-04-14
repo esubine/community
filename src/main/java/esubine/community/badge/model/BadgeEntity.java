@@ -43,15 +43,15 @@ public class BadgeEntity {
 
     @Nullable
     @Column(name = "board_count")
-    private int boardCount;
+    private Integer boardCount;
 
     @Nullable
     @Column(name = "comment_count")
-    private int commentCount;
+    private Integer commentCount;
 
     @Nullable
     @Column(name = "like_count")
-    private int likeCount;
+    private Integer likeCount;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -60,4 +60,6 @@ public class BadgeEntity {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+
 }

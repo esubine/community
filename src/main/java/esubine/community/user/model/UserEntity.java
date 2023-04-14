@@ -47,7 +47,7 @@ public class UserEntity {
     private LocalDateTime updatedAt;
 
     @Getter(AccessLevel.PRIVATE)
-    @OneToMany(mappedBy = "badge", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private final Set<UserBadgeEntity> userBadges = new HashSet<>();
 
     public static UserEntity of(String realName, String nickname, String loginId, String loginPassword) {

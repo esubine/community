@@ -19,11 +19,11 @@ public class UserBadgeEntity {
     @Column(name = "user_badge_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "badge_id")
     private BadgeEntity badge;
 
