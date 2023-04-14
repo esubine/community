@@ -1,4 +1,4 @@
-package esubine.community.badge;
+package esubine.community.badge.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

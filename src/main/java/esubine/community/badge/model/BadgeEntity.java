@@ -1,4 +1,4 @@
-package esubine.community.badge;
+package esubine.community.badge.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
