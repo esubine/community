@@ -59,7 +59,7 @@ public class BoardEntity {
     private int reportCount;
 
     @Getter(AccessLevel.PRIVATE)
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<BoardHashTagEntity> boardHashTags = new ArrayList<>();
 
     public static BoardEntity of(String title, String contents) {
@@ -99,5 +99,9 @@ public class BoardEntity {
 //                .map((e)->e.getName())
                 .map((e)->e.getHashtag().getName())
                 .toList();
+    }
+
+    public void clearHashTag(){
+        boardHashTags.clear();
     }
 }

@@ -105,10 +105,18 @@ public class BoardService {
             if (updateBoardRequest.getContents() != null) {
                 board.setContents(updateBoardRequest.getContents());
             }
+
             if (updateBoardRequest.getCategoryId() != null) {
                 categoryRepository.findById(updateBoardRequest.getCategoryId()).orElseThrow(() -> new NoDataException("없는 카테고리입니다."));
                 board.setBoardCategoryId(updateBoardRequest.getCategoryId());
             }
+
+            if (updateBoardRequest.getHashtags() != null) {
+                board.clearHashTag();
+                List<HashTagEntity> hashTagEntityList = hashTagService.convertHashTagEntity(updateBoardRequest.getHashtags());
+                board.addHashTags(hashTagEntityList);
+            }
+
         } else {
             throw new AuthException("작성자만 수정할 수 있습니다.");
         }
