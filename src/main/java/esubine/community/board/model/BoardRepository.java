@@ -56,4 +56,11 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
             "WHERE b.boardId=:boardId ")
     @Modifying
     void decreaseLikeCount(Long boardId);
+
+    Long countByBoardId(Long boardId);
+    Long countByUserId(Long userId);
+
+    @Query("SELECT sum(b.likeCount) from BoardEntity b " +
+            "WHERE b.user.id=:userId ")
+    Long sumLikeCountByUserId(Long userId);
 }
