@@ -58,6 +58,9 @@ public class BoardEntity {
     @Column(name="report_count")
     private int reportCount;
 
+    @Column(name="is_delete")
+    private boolean isDelete;
+
     @Getter(AccessLevel.PRIVATE)
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<BoardHashTagEntity> boardHashTags = new ArrayList<>();
