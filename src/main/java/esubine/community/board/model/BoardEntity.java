@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
+import org.hibernate.LazyInitializationException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,11 +38,11 @@ public class BoardEntity {
     @Column(name = "contents")
     private String contents;
 
-    @JoinColumn(name="category_id")
-    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private CategoryEntity category;
 
-    @JoinColumn(name= "user_id")
+    @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity user;
 
@@ -52,13 +54,13 @@ public class BoardEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name="like_count")
+    @Column(name = "like_count")
     private int likeCount;
 
-    @Column(name="report_count")
+    @Column(name = "report_count")
     private int reportCount;
 
-    @Column(name="is_delete")
+    @Column(name = "is_delete")
     private boolean isDelete;
 
     @Getter(AccessLevel.PRIVATE)
@@ -79,32 +81,37 @@ public class BoardEntity {
         setBoardCategoryId(categoryId);
     }
 
-    public void setBoardCategoryId(Long categoryId){
+    public void setBoardCategoryId(Long categoryId) {
         this.category = new CategoryEntity();
         this.category.setCategoryId(categoryId);
     }
 
-    public void addHashTag(HashTagEntity hashTag){
+    public void addHashTag(HashTagEntity hashTag) {
         BoardHashTagEntity boardHashTag = new BoardHashTagEntity(this, hashTag);
         this.boardHashTags.add(boardHashTag);
     }
 
-    public void addHashTags(Collection<HashTagEntity> hashTags){
+    public void addHashTags(Collection<HashTagEntity> hashTags) {
         hashTags.forEach(this::addHashTag);
     }
 
-    public List<String> getHashTagNames(){
-        return boardHashTags.stream()
+    public List<String> getHashTagNames() {
+        try {
+
+            return boardHashTags.stream()
 //                .map(BoardHashTagEntity::getHashtag)
 //                .map(HashTagEntity::getName)
-                ///////
+                    ///////
 //                .map((e)->e.getHashtag())
 //                .map((e)->e.getName())
-                .map((e)->e.getHashtag().getName())
-                .toList();
+                    .map((e) -> e.getHashtag().getName())
+                    .toList();
+        } catch (LazyInitializationException e) {
+            return null;
+        }
     }
 
-    public void clearHashTag(){
+    public void clearHashTag() {
         boardHashTags.clear();
     }
 }
