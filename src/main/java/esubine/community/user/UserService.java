@@ -56,14 +56,14 @@ public class UserService {
     }
 
     public UserResponse updateNickname(Long userId, UpdateNicknameRequest updateNicknameRequest) {
-        //토큰 확인 - 토큰에 유저아이디 들어온 아이디가 일치하는지 - 유저엔티티.getnickname해서 닉네임 중복확인 - 닉네임 업데이트
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
         if (userRepository.findByNickname(updateNicknameRequest.getNickname()) == null) {
             user.setNickname(updateNicknameRequest.getNickname());
             userRepository.save(user);
+        } else {
+            throw new DuplicatedException("중복된 닉네임입니다.");
         }
-
         return new UserResponse(user);
     }
 
