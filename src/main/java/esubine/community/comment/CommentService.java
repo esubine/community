@@ -43,7 +43,7 @@ public class CommentService {
     }
 
     public EmptyResponse updateComment(Long userId, Long commentId, CommentRequest commentRequest) {
-        Optional<CommentEntity> commentOptional = commentRepository.findById(commentId);
+        Optional<CommentEntity> commentOptional = commentRepository.getByCommentId(commentId);
         CommentEntity comment = commentOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
         if (userId.equals(comment.getUser().getId())) {
@@ -56,12 +56,14 @@ public class CommentService {
 //        return comment;
     }
 
+
     public EmptyResponse deleteComment(Long userId, Long commentId) {
-        Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
-        CommentEntity comment = commentEntityOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
+        Optional<CommentEntity> commentOptional = commentRepository.getByCommentId(commentId);
+        CommentEntity comment = commentOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
         if (userId.equals(comment.getUser().getId())) {
-            commentRepository.deleteById(commentId);
+            comment.setDelete(true);
+            commentRepository.save(comment);
         } else {
             throw new AuthException("작성자만 삭제할 수 있습니다.");
         }
