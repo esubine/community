@@ -40,19 +40,11 @@ public class UserService {
     }
 
     public UserResponse getUserInfo(Long id) {
+        TokenEntity token = tokenRepository.findByUserId(id);
+        if (token == null || token.isDelete()) throw new AuthException("탈퇴한 회원입니다.");
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
+
         return new UserResponse(user);
-    }
-
-    private Long getUserIdByToken(String tokenInput) {
-
-        TokenEntity token = tokenRepository.findByToken(tokenInput.substring("Bearer ".length()));
-        System.out.println("token = " + token);
-        if (token == null) {
-            throw new AuthException("권한이 없습니다.");
-        }
-        Long userId = token.getUserId();
-        return userId;
     }
 
     public UserResponse updateNickname(Long userId, UpdateNicknameRequest updateNicknameRequest) {
@@ -70,13 +62,24 @@ public class UserService {
     @Transactional
     public EmptyResponse deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
-        tokenRepository.deleteAllByUserId(user.getId());
-        userRepository.delete(user);
+
+//        TokenEntity token = tokenRepository.findByUserId(userId);
+//        if (token.isDelete()) throw new AuthException("탈퇴한 회원입니다.");
+
+        tokenRepository.setAllByUserId(userId);
+
+//        token.setDelete(true);
+//        tokenRepository.save(token);
+
+        user.setDelete(true);
+        userRepository.save(user);
+
         return null;
     }
 
     public EmptyResponse updatePassword(Long userId, UpdatePasswordRequest updatePasswordRequest) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+
         if (user.getLoginPassword().equals(updatePasswordRequest.getPresentPassword())) {
             user.setLoginPassword(updatePasswordRequest.getNewPassword());
             userRepository.save(user);
@@ -89,8 +92,11 @@ public class UserService {
 
     public EmptyResponse blockUser(Long requesterId, Long targetId) {
         UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
+
         Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
-        UserEntity user = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+        UserEntity targetUser = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+
+        if(targetUser.isDelete()) throw new AuthException("이미 탈퇴한 회원입니다.");
 
         if (blockUser.isPresent()) {
             throw new AuthException("이미 차단한 유저입니다.");
