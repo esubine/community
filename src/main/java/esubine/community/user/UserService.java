@@ -40,8 +40,8 @@ public class UserService {
     }
 
     public UserResponse getUserInfo(Long id) {
-        TokenEntity token = tokenRepository.findByUserId(id);
-        if (token == null || token.isDelete()) throw new AuthException("탈퇴한 회원입니다.");
+        Optional<TokenEntity> token = tokenRepository.findByUserId(id);
+        if (token == null) throw new AuthException("탈퇴한 회원입니다.");
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
         return new UserResponse(user);
@@ -63,14 +63,7 @@ public class UserService {
     public EmptyResponse deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
-//        TokenEntity token = tokenRepository.findByUserId(userId);
-//        if (token.isDelete()) throw new AuthException("탈퇴한 회원입니다.");
-
-        tokenRepository.setAllByUserId(userId);
-
-//        token.setDelete(true);
-//        tokenRepository.save(token);
-
+        tokenRepository.deleteAllByUserId(userId);
         user.setDelete(true);
         userRepository.save(user);
 

@@ -19,8 +19,6 @@ public class TokenEntity {
     private String token;
     @Column(name="user_id")
     private Long userId;
-    @Column(name="is_delete")
-    private boolean isDelete;
 
     public TokenEntity(String token, Long userId){
         this.token = token;
