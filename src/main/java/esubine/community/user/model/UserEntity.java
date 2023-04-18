@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name="user")
+@Table(name = "user")
 @EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
     @Id
@@ -20,17 +20,20 @@ public class UserEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name="real_name")
+    @Column(name = "real_name")
     private String realName;
 
-    @Column(name="nickname")
+    @Column(name = "nickname")
     private String nickname;
 
-    @Column(name="login_id")
+    @Column(name = "login_id")
     private String loginId;
 
-    @Column(name="login_password")
+    @Column(name = "login_password")
     private String loginPassword;
+
+    @Column(name = "is_delete")
+    private boolean isDelete;
 
     @CreatedDate
     @Column(name = "created_at")
