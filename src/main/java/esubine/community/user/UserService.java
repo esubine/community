@@ -3,7 +3,6 @@ package esubine.community.user;
 import esubine.community.EmptyResponse;
 import esubine.community.auth.model.TokenEntity;
 import esubine.community.auth.model.TokenRepository;
-import esubine.community.board.model.BoardEntity;
 import esubine.community.user.model.BlockUserEntity;
 import esubine.community.user.model.BlockUserRepository;
 import esubine.community.user.model.UserEntity;
@@ -84,20 +83,23 @@ public class UserService {
     }
 
     public EmptyResponse blockUser(Long requesterId, Long targetId) {
-        UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
+        if(!requesterId.equals(targetId)) {
+            UserEntity targetUser = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+            if (targetUser.isDelete()) throw new AuthException("이미 탈퇴한 회원입니다.");
 
-        Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
-        UserEntity targetUser = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+            UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
 
-        if(targetUser.isDelete()) throw new AuthException("이미 탈퇴한 회원입니다.");
+            Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
 
-        if (blockUser.isPresent()) {
-            throw new AuthException("이미 차단한 유저입니다.");
-        } else {
-            BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
-            blockUserRepository.save(blockUserEntity);
-            return new EmptyResponse();
+            if (blockUser.isPresent()) {
+                throw new AuthException("이미 차단한 유저입니다.");
+            } else {
+                BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
+                blockUserRepository.save(blockUserEntity);
+                return new EmptyResponse();
+            }
         }
+        throw new MisMatchException("본인 계정을 차단할 수 없습니다.");
     }
 
 //    public EmptyResponse unblockUser(Long requesterId, Long targetId){
