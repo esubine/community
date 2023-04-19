@@ -129,11 +129,11 @@ public class BoardService {
 //        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
 //        BoardEntity board = boardOptional.get();
 
-        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
-        BoardEntity board = boardOptional.orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+        BoardEntity board = boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
         if (userId.equals(board.getUser().getId())) {
-            boardRepository.deleteById(boardId);
+            board.setDelete(true);
+            boardRepository.save(board);
         } else {
             throw new AuthException("작성자만 삭제할 수 있습니다.");
         }
