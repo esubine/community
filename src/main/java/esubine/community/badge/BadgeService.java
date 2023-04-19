@@ -31,7 +31,7 @@ public class BadgeService {
                 .filter((e) -> e.getStartDate() == null || e.getStartDate().isBefore(LocalDateTime.now()))
                 .filter((e) -> e.getEndDate() == null || e.getEndDate().isAfter(LocalDateTime.now()))
                 .filter((e) -> e.getBoardCount() == null || e.getBoardCount() <= boardRepository.countByUserId(userId))
-//                .filter((e) -> e.getCommentCount() == null || e.getCommentCount() <= commentRepository.countByUserId(userId))
+                .filter((e) -> e.getCommentCount() == null || e.getCommentCount() <= commentRepository.countByUserId(userId))
                 .filter((e) -> e.getLikeCount() == null || e.getLikeCount() <= boardRepository.sumLikeCountByUserId(userId))
                 .forEach((e) -> {
                     userBadgeRepository.save(new UserBadgeEntity(userEntity, e));
