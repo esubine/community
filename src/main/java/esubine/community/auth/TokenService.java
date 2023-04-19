@@ -11,14 +11,11 @@ import org.springframework.stereotype.Service;
 public class TokenService {
     private final TokenRepository tokenRepository;
 
-    public Long tokenReturnUserId(String tokenInput){
+    public Long tokenReturnUserId(String tokenInput) {
         TokenEntity token = tokenRepository.findByToken(tokenInput.substring("Bearer ".length()));
-        if(token == null) throw new AuthException("유효하지 않는 토큰 입니다.");
 
-        if (token.isDelete()) throw new AuthException("탈퇴한 회원입니다.");
-
+        if (token == null) throw new AuthException("유효하지 않는 토큰 입니다.");
         return token.getUserId();
-
 
 
 //        TokenEntity token = tokenRepository.findByToken(tokenInput.substring("Bearer ".length()));

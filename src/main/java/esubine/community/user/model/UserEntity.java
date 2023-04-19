@@ -1,5 +1,7 @@
 package esubine.community.user.model;
 
+import esubine.community.badge.model.UserBadgeEntity;
+import esubine.community.hashtag.model.BoardHashTagEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,6 +9,10 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -43,6 +49,9 @@ public class UserEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Getter(AccessLevel.PRIVATE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private final Set<UserBadgeEntity> userBadges = new HashSet<>();
 
     public static UserEntity of(String realName, String nickname, String loginId, String loginPassword) {
         UserEntity user = new UserEntity();

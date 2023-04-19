@@ -2,6 +2,7 @@ package esubine.community.comment;
 
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
+import esubine.community.badge.aop.CheckBadge;
 import esubine.community.comment.dto.CommentRequest;
 import esubine.community.comment.dto.CommentResponse;
 import esubine.community.comment.model.CommentEntity;
@@ -22,6 +23,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
 
+    @CheckBadge
     public void createComment(Long userId, Long boardId, Long parentCommentId, CommentRequest createCommentRequest) {
 
         if (boardId == null && parentCommentId == null) {
