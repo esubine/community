@@ -26,7 +26,6 @@ public class BadgeEntity {
     @Column(name = "name")
     private String name;
 
-    @Nullable
     @Column(name = "image")
     private String image;
 
