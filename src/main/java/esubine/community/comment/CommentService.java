@@ -1,6 +1,8 @@
 package esubine.community.comment;
 
 import esubine.community.EmptyResponse;
+import esubine.community.board.model.BoardEntity;
+import esubine.community.board.model.BoardRepository;
 import esubine.community.comment.dto.CommentRequest;
 import esubine.community.comment.dto.CommentResponse;
 import esubine.community.comment.model.CommentEntity;
@@ -20,8 +22,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final BoardRepository boardRepository;
 
     public EmptyResponse createComment(Long userId, Long boardId, Long parentCommentId, CommentRequest createCommentRequest) {
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
+        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
 
         if (parentCommentId != null) {
             Optional<CommentEntity> commentEntity = commentRepository.findById(parentCommentId);
@@ -30,7 +35,6 @@ public class CommentService {
                 throw new MisMatchException("root 댓글에만 대댓글을 작성할 수 있습니다.");
             }
         }
-
 
         CommentEntity comment = new CommentEntity(userId, boardId, parentCommentId, createCommentRequest.getComment());
         commentRepository.save(comment);
@@ -65,6 +69,9 @@ public class CommentService {
     }
 
     public List<CommentEntity> getCommentByBoardId(Long boardId, Pageable pageable) {
+        Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
+        if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
+
         List<CommentEntity> commentEntityList = commentRepository.getCommentAllByBoardId(boardId, pageable);
         if (commentEntityList.isEmpty()) {
             throw new NoDataException("작성된 댓글이 없습니다.");
@@ -72,7 +79,7 @@ public class CommentService {
         return commentEntityList;
     }
 
-    public List<CommentResponse> responseBoard(List<CommentEntity> commentEntityList) {
+    public List<CommentResponse> response(List<CommentEntity> commentEntityList) {
         List<CommentResponse> result = new ArrayList<>();
         for (int i = 0; i < commentEntityList.size(); i++) {
             CommentEntity comment = commentEntityList.get(i);
@@ -88,5 +95,4 @@ public class CommentService {
         }
         return commentEntityList;
     }
-    //TODO: 댓글 작성하기 수정 - 대댓글 다는 경우에 root 댓글에 대댓글 작성할수있도록하기, parentCommentId가 null이 아닌경우에 댓글 작성하는건 예외처리
 }
