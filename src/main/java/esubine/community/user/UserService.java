@@ -38,10 +38,8 @@ public class UserService {
         return userRepository.save(createUserRequest.toEntity());
     }
 
-    public UserResponse getUserInfo(Long id) {
-        Optional<TokenEntity> token = tokenRepository.findByUserId(id);
-        if (token == null) throw new AuthException("탈퇴한 회원입니다.");
-        UserEntity user = userRepository.findById(id).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
+    public UserResponse getUserInfo(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
         return new UserResponse(user);
     }
@@ -49,12 +47,12 @@ public class UserService {
     public UserResponse updateNickname(Long userId, UpdateNicknameRequest updateNicknameRequest) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
-        if (userRepository.findByNickname(updateNicknameRequest.getNickname()) == null) {
-            user.setNickname(updateNicknameRequest.getNickname());
-            userRepository.save(user);
-        } else {
+        if (userRepository.findByNickname(updateNicknameRequest.getNickname()).isPresent())
             throw new DuplicatedException("중복된 닉네임입니다.");
-        }
+
+        user.setNickname(updateNicknameRequest.getNickname());
+        userRepository.save(user);
+
         return new UserResponse(user);
     }
 
@@ -83,23 +81,24 @@ public class UserService {
     }
 
     public EmptyResponse blockUser(Long requesterId, Long targetId) {
-        if(!requesterId.equals(targetId)) {
-            UserEntity targetUser = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
-            if (targetUser.isDelete()) throw new AuthException("이미 탈퇴한 회원입니다.");
+        if (requesterId.equals(targetId))
+            throw new MisMatchException("본인 계정을 차단할 수 없습니다.");
 
-            UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
+        UserEntity targetUser = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+        if (targetUser.isDelete()) throw new AuthException("이미 탈퇴한 회원입니다.");
 
-            Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
+        UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
 
-            if (blockUser.isPresent()) {
-                throw new AuthException("이미 차단한 유저입니다.");
-            } else {
-                BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
-                blockUserRepository.save(blockUserEntity);
-                return new EmptyResponse();
-            }
+        Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
+
+        if (blockUser.isPresent()) {
+            throw new AuthException("이미 차단한 유저입니다.");
         }
-        throw new MisMatchException("본인 계정을 차단할 수 없습니다.");
+        BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
+        blockUserRepository.save(blockUserEntity);
+        return new EmptyResponse();
+
+
     }
 
 //    public EmptyResponse unblockUser(Long requesterId, Long targetId){
