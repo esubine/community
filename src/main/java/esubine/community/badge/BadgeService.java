@@ -5,14 +5,11 @@ import esubine.community.badge.model.BadgeRepository;
 import esubine.community.badge.model.UserBadgeEntity;
 import esubine.community.badge.model.UserBadgeRepository;
 import esubine.community.board.model.BoardRepository;
-import esubine.community.comment.model.CommentEntity;
 import esubine.community.comment.model.CommentRepository;
 import esubine.community.user.model.UserEntity;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -26,12 +23,9 @@ public class BadgeService {
 
 
     public void refreshBadge(Long userId) {
-        Set<BadgeEntity> badgeEntities = badgeRepository.getByBadgeId(userId);
+        Set<BadgeEntity> badgeEntities = badgeRepository.getByUserId(userId);
 
         UserEntity userEntity = UserEntity.of(userId);
-
-//        Long sumLikeCount = ;
-//        System.out.println("sumLikeCount = " + sumLikeCount);
 
         badgeEntities.stream()
                 .filter((e) -> e.getStartDate() == null || e.getStartDate().isBefore(LocalDateTime.now()))

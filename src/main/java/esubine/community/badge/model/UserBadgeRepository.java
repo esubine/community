@@ -8,7 +8,6 @@ import java.util.Set;
 public interface UserBadgeRepository extends JpaRepository<UserBadgeEntity, Long> {
     @Query("SELECT ub.badge.badgeId FROM UserBadgeEntity ub " +
             "WHERE ub.user.id=:userId ")
-    Set<UserBadgeEntity> userBadges(Long userId);
-
+    Set<UserBadgeEntity> getUserBadges(Long userId);
 
 }
