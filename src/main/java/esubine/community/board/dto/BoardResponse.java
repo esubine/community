@@ -1,9 +1,11 @@
 package esubine.community.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.category.dto.CategoryResponse;
 import esubine.community.user.dto.UserResponse;
 import lombok.Getter;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +20,7 @@ public class BoardResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<String> hashtags;
 
     public BoardResponse(BoardEntity board) {
@@ -25,7 +28,7 @@ public class BoardResponse {
         this.title = board.getTitle();
         this.contents = board.getContents();
         this.user = new UserResponse(board.getUser());
-        this.category= new CategoryResponse(board.getCategory());
+        this.category = new CategoryResponse(board.getCategory());
         this.createdAt = board.getCreatedAt();
         this.updatedAt = board.getUpdatedAt();
         this.hashtags = board.getHashTagNames();

@@ -27,6 +27,5 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     )
     CommentEntity getByParentCommentId(Long parentCommentId);
 
-    Long countByUserId(Long userId);
-
+    CommentEntity findCommentEntityByParentCommentId(Long parentCommentId);
 }

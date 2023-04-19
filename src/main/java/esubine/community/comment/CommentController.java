@@ -56,7 +56,7 @@ public class CommentController {
             Pageable pageable
     ) {
         List<CommentEntity> commentEntityList = commentService.getCommentByBoardId(boardId, pageable);
-        return commentService.responseBoard(commentEntityList);
+        return commentService.response(commentEntityList);
     }
 
     @GetMapping("/user")
