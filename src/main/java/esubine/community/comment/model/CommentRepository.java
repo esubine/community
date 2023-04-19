@@ -19,13 +19,4 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             "LEFT JOIN FETCH c.user " +
             "WHERE c.user.id=:userId ")
     List<CommentEntity> getCommentByUserId(Long userId, Pageable pageable);
-
-    @Query("SELECT c FROM CommentEntity c " +
-            "LEFT JOIN FETCH c.user " +
-            "LEFT JOIN FETCH c.parentCommentId " +
-            "WHERE c.parentCommentId=:parentCommentId"
-    )
-    CommentEntity getByParentCommentId(Long parentCommentId);
-
-    CommentEntity findCommentEntityByParentCommentId(Long parentCommentId);
 }
