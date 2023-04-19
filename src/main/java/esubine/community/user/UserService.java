@@ -3,7 +3,6 @@ package esubine.community.user;
 import esubine.community.EmptyResponse;
 import esubine.community.auth.model.TokenEntity;
 import esubine.community.auth.model.TokenRepository;
-import esubine.community.board.model.BoardEntity;
 import esubine.community.user.model.BlockUserEntity;
 import esubine.community.user.model.BlockUserRepository;
 import esubine.community.user.model.UserEntity;
@@ -39,30 +38,20 @@ public class UserService {
         return userRepository.save(createUserRequest.toEntity());
     }
 
-    public UserResponse getUserInfo(Long id) {
-        UserEntity user = userRepository.findById(id).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
+    public UserResponse getUserInfo(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
+
         return new UserResponse(user);
     }
 
-    private Long getUserIdByToken(String tokenInput) {
-
-        TokenEntity token = tokenRepository.findByToken(tokenInput.substring("Bearer ".length()));
-        System.out.println("token = " + token);
-        if (token == null) {
-            throw new AuthException("권한이 없습니다.");
-        }
-        Long userId = token.getUserId();
-        return userId;
-    }
-
     public UserResponse updateNickname(Long userId, UpdateNicknameRequest updateNicknameRequest) {
-        //토큰 확인 - 토큰에 유저아이디 들어온 아이디가 일치하는지 - 유저엔티티.getnickname해서 닉네임 중복확인 - 닉네임 업데이트
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
 
-        if (userRepository.findByNickname(updateNicknameRequest.getNickname()) == null) {
-            user.setNickname(updateNicknameRequest.getNickname());
-            userRepository.save(user);
-        }
+        if (userRepository.findByNickname(updateNicknameRequest.getNickname()).isPresent())
+            throw new DuplicatedException("중복된 닉네임입니다.");
+
+        user.setNickname(updateNicknameRequest.getNickname());
+        userRepository.save(user);
 
         return new UserResponse(user);
     }
@@ -70,13 +59,17 @@ public class UserService {
     @Transactional
     public EmptyResponse deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
-        tokenRepository.deleteAllByUserId(user.getId());
-        userRepository.delete(user);
+
+        tokenRepository.deleteAllByUserId(userId);
+        user.setDelete(true);
+        userRepository.save(user);
+
         return null;
     }
 
     public EmptyResponse updatePassword(Long userId, UpdatePasswordRequest updatePasswordRequest) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+
         if (user.getLoginPassword().equals(updatePasswordRequest.getPresentPassword())) {
             user.setLoginPassword(updatePasswordRequest.getNewPassword());
             userRepository.save(user);
@@ -88,17 +81,24 @@ public class UserService {
     }
 
     public EmptyResponse blockUser(Long requesterId, Long targetId) {
+        if (requesterId.equals(targetId))
+            throw new MisMatchException("본인 계정을 차단할 수 없습니다.");
+
+        UserEntity targetUser = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
+        if (targetUser.isDelete()) throw new AuthException("이미 탈퇴한 회원입니다.");
+
         UserEntity requestUser = userRepository.findById(requesterId).orElseThrow(() -> new AuthException("로그인하세요."));
+
         Optional<BlockUserEntity> blockUser = blockUserRepository.findByRequesterIdAndTargetId(requesterId, targetId);
-        UserEntity user = userRepository.findById(targetId).orElseThrow(() -> new AuthException("존재하지 않는 유저입니다."));
 
         if (blockUser.isPresent()) {
             throw new AuthException("이미 차단한 유저입니다.");
-        } else {
-            BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
-            blockUserRepository.save(blockUserEntity);
-            return new EmptyResponse();
         }
+        BlockUserEntity blockUserEntity = new BlockUserEntity(requestUser.getId(), targetId);
+        blockUserRepository.save(blockUserEntity);
+        return new EmptyResponse();
+
+
     }
 
 //    public EmptyResponse unblockUser(Long requesterId, Long targetId){
