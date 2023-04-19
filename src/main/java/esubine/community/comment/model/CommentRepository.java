@@ -1,6 +1,5 @@
 package esubine.community.comment.model;
 
-import esubine.community.comment.dto.ChildCommentResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +21,5 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             "WHERE c.user.id=:userId ")
     List<CommentEntity> getCommentByUserId(Long userId, Pageable pageable);
 
+    Long countByUserId(Long userId);
 }
