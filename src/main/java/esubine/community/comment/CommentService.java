@@ -1,6 +1,7 @@
 package esubine.community.comment;
 
-import esubine.community.EmptyResponse;
+import esubine.community.board.model.BoardEntity;
+import esubine.community.board.model.BoardRepository;
 import esubine.community.comment.dto.CommentRequest;
 import esubine.community.comment.dto.CommentResponse;
 import esubine.community.comment.model.CommentEntity;
@@ -14,33 +15,42 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final BoardRepository boardRepository;
 
-    public EmptyResponse createComment(Long userId, Long boardId, Long parentCommentId, CommentRequest createCommentRequest) {
+    public void createComment(Long userId, Long boardId, Long parentCommentId, CommentRequest createCommentRequest) {
 
-        if (parentCommentId != null) {
-            Optional<CommentEntity> commentEntity = commentRepository.findById(parentCommentId);
-            commentEntity.orElseThrow(() -> new NoDataException("없는 댓글 입니다."));
-            if (commentEntity.get().getParentCommentId() != null) {
-                throw new MisMatchException("root 댓글에만 대댓글을 작성할 수 있습니다.");
-            }
+        if (boardId == null && parentCommentId == null) {
+            throw new NoDataException("boardId, parentCommentId 둘 중 하나는 꼭 입력해야합니다.");
         }
 
+        if (boardId != null && parentCommentId == null) {
+            boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+            CommentEntity comment = new CommentEntity(userId, boardId, null, createCommentRequest.getComment());
+            commentRepository.save(comment);
+            return;
+        }
 
-        CommentEntity comment = new CommentEntity(userId, boardId, parentCommentId, createCommentRequest.getComment());
-        commentRepository.save(comment);
+        CommentEntity parentComment = commentRepository.findByCommentId(parentCommentId).orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
-        return new EmptyResponse();
+        if (parentComment.getParentCommentId() != null) {
+            throw new MisMatchException("root 댓글에만 대댓글을 작성할 수 있습니다.");
+        }
+        if (boardId != null && parentCommentId != null) {
+            if (!parentComment.getBoardId().equals(boardId)) throw new MisMatchException("게시물을 찾을 수 없습니다.");
+        }
+
+        CommentEntity childComment = new CommentEntity(userId, parentComment.getBoardId(), parentComment.getCommentId(), createCommentRequest.getComment());
+        commentRepository.save(childComment);
+
     }
 
-    public EmptyResponse updateComment(Long userId, Long commentId, CommentRequest commentRequest) {
-        Optional<CommentEntity> commentOptional = commentRepository.findById(commentId);
-        CommentEntity comment = commentOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
+    public void updateComment(Long userId, Long commentId, CommentRequest commentRequest) {
+        CommentEntity comment = commentRepository.getByCommentId(commentId).orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
         if (userId.equals(comment.getUser().getId())) {
             comment.setComment(commentRequest.getComment());
@@ -48,23 +58,22 @@ public class CommentService {
         } else {
             throw new AuthException("작성자만 수정할 수 있습니다.");
         }
-        return new EmptyResponse();
-//        return comment;
     }
 
-    public EmptyResponse deleteComment(Long userId, Long commentId) {
-        Optional<CommentEntity> commentEntityOptional = commentRepository.findById(commentId);
-        CommentEntity comment = commentEntityOptional.orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
+    public void deleteComment(Long userId, Long commentId) {
+        CommentEntity comment = commentRepository.getByCommentId(commentId).orElseThrow(() -> new NoDataException("댓글을 찾을 수 없습니다."));
 
         if (userId.equals(comment.getUser().getId())) {
-            commentRepository.deleteById(commentId);
+            comment.setDelete(true);
+            commentRepository.save(comment);
         } else {
             throw new AuthException("작성자만 삭제할 수 있습니다.");
         }
-        return new EmptyResponse();
     }
 
     public List<CommentEntity> getCommentByBoardId(Long boardId, Pageable pageable) {
+        BoardEntity board = boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
+
         List<CommentEntity> commentEntityList = commentRepository.getCommentAllByBoardId(boardId, pageable);
         if (commentEntityList.isEmpty()) {
             throw new NoDataException("작성된 댓글이 없습니다.");
@@ -72,7 +81,7 @@ public class CommentService {
         return commentEntityList;
     }
 
-    public List<CommentResponse> responseBoard(List<CommentEntity> commentEntityList) {
+    public List<CommentResponse> response(List<CommentEntity> commentEntityList) {
         List<CommentResponse> result = new ArrayList<>();
         for (int i = 0; i < commentEntityList.size(); i++) {
             CommentEntity comment = commentEntityList.get(i);
@@ -88,5 +97,4 @@ public class CommentService {
         }
         return commentEntityList;
     }
-    //TODO: 댓글 작성하기 수정 - 대댓글 다는 경우에 root 댓글에 대댓글 작성할수있도록하기, parentCommentId가 null이 아닌경우에 댓글 작성하는건 예외처리
 }

@@ -24,11 +24,12 @@ public class CommentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public EmptyResponse createComment(
             AuthInfo authInfo,
-            @RequestParam(value = "boardId") Long boardId,
+            @RequestParam(value = "boardId", required = false) Long boardId,
             @RequestParam(value = "parentCommentId", required = false) Long parentCommentId,
             @RequestBody CommentRequest commentRequest
     ) {
-        return commentService.createComment(authInfo.getUserId(), boardId, parentCommentId, commentRequest);
+        commentService.createComment(authInfo.getUserId(), boardId, parentCommentId, commentRequest);
+        return new EmptyResponse();
     }
 
 
@@ -38,7 +39,8 @@ public class CommentController {
             @PathVariable("commentId") Long commentId,
             @RequestBody CommentRequest commentRequest
     ) {
-        return commentService.updateComment(authInfo.getUserId(), commentId, commentRequest);
+        commentService.updateComment(authInfo.getUserId(), commentId, commentRequest);
+        return new EmptyResponse();
     }
 
     @DeleteMapping("{commentId}")
@@ -46,7 +48,8 @@ public class CommentController {
             AuthInfo authInfo,
             @PathVariable("commentId") Long commentId
     ) {
-        return commentService.deleteComment(authInfo.getUserId(), commentId);
+        commentService.deleteComment(authInfo.getUserId(), commentId);
+        return new EmptyResponse();
     }
 
     @GetMapping
@@ -56,7 +59,7 @@ public class CommentController {
             Pageable pageable
     ) {
         List<CommentEntity> commentEntityList = commentService.getCommentByBoardId(boardId, pageable);
-        return commentService.responseBoard(commentEntityList);
+        return commentService.response(commentEntityList);
     }
 
     @GetMapping("/user")
