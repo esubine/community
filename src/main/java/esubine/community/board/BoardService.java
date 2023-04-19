@@ -1,6 +1,7 @@
 package esubine.community.board;
 
 import esubine.community.EmptyResponse;
+import esubine.community.badge.aop.CheckBadge;
 import esubine.community.board.dto.*;
 import esubine.community.board.model.*;
 import esubine.community.category.model.CategoryEntity;
@@ -32,6 +33,7 @@ public class BoardService {
 
     private final HashTagService hashTagService;
 
+    @CheckBadge
     public BoardEntity createBoard(Long userId, CreateBoardRequest createBoardRequest, Long categoryId) {
         Optional<CategoryEntity> category = categoryRepository.findById(categoryId);
         if (category.isEmpty()) throw new NoDataException("해당 카테고리가 존재하지 않습니다.");
@@ -140,6 +142,7 @@ public class BoardService {
         return board;
     }
 
+    @CheckBadge
     @Transactional
     public EmptyResponse likeBoard(Long userId, Long boardId, LikeRequest likeRequest) {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
