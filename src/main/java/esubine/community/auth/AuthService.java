@@ -20,6 +20,7 @@ public class AuthService {
     public String generatedToken(String id, String password) {
         UserEntity user = loginUser(id, password);
         if (user == null) throw new AuthException("사용자 정보가 없습니다.");
+        else if (user.isDelete()) throw new AuthException("탈퇴한 회원입니다.");
 
         String createdToken = UUID.randomUUID().toString().replace("-", "");
         TokenEntity token = new TokenEntity(createdToken, user.getId());
