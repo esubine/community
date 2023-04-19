@@ -3,6 +3,7 @@ package esubine.community.comment;
 import esubine.community.EmptyResponse;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
+import esubine.community.badge.aop.CheckBadge;
 import esubine.community.comment.dto.CommentRequest;
 import esubine.community.comment.dto.CommentResponse;
 import esubine.community.comment.model.CommentEntity;
@@ -24,6 +25,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
 
+    @CheckBadge
     public EmptyResponse createComment(Long userId, Long boardId, Long parentCommentId, CommentRequest createCommentRequest) {
         Optional<BoardEntity> boardOptional = boardRepository.getByBoardId(boardId);
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
