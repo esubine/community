@@ -14,6 +14,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             "AND c.isDelete=false ")
     Optional<CommentEntity> getByCommentId(Long commentId);
 
+    Optional<CommentEntity> findByCommentId(Long commentId);
+
     @Query("SELECT c FROM CommentEntity c " +
             "LEFT JOIN FETCH c.user " +
             "LEFT JOIN FETCH c.children cc " +
