@@ -37,6 +37,9 @@ public class CommentEntity {
     @OneToMany(mappedBy = "parentCommentId", fetch = FetchType.LAZY)
     private List<CommentEntity> children;
 
+    @Column(name="is_delete")
+    private boolean isDelete;
+
     public CommentEntity(Long userId, Long boardId, Long commentId, String comment){
         this.user = UserEntity.of(userId);
         this.boardId = boardId;
