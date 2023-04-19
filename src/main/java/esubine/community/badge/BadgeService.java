@@ -23,7 +23,7 @@ public class BadgeService {
 
 
     public void refreshBadge(Long userId) {
-        Set<BadgeEntity> badgeEntities = badgeRepository.getByBadgeId(userId);
+        Set<BadgeEntity> badgeEntities = badgeRepository.getByUserId(userId);
 
         UserEntity userEntity = UserEntity.of(userId);
 

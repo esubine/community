@@ -10,8 +10,7 @@ public interface BadgeRepository extends JpaRepository<BadgeEntity, Long> {
     @Query("SELECT b FROM UserBadgeEntity ub " +
             "RIGHT JOIN ub.badge b ON ub.user.id=:userId " +
             "WHERE b.badgeId IS NULL ")
-    Set<BadgeEntity> getByBadgeId(Long userId);
-
+    Set<BadgeEntity> getByUserId(Long userId);
 
 
 }
