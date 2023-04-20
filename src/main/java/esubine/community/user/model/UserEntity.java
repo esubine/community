@@ -1,18 +1,20 @@
 package esubine.community.user.model;
 
 import esubine.community.badge.model.UserBadgeEntity;
-import esubine.community.hashtag.model.BoardHashTagEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.LazyInitializationException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -67,4 +69,16 @@ public class UserEntity {
         user.id = userId;
         return user;
     }
+
+
+    public Set<Long> getBadgeId() {
+        try {
+            return userBadges.stream()
+                    .map((e) -> e.getBadge().getBadgeId())
+                    .collect(Collectors.toSet());
+        } catch (LazyInitializationException e) {
+            return null;
+        }
+    }
 }
+
