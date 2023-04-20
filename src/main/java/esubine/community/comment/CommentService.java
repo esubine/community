@@ -1,8 +1,8 @@
 package esubine.community.comment;
 
+import esubine.community.badge.aop.CheckBadge;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
-import esubine.community.badge.aop.CheckBadge;
 import esubine.community.comment.dto.CommentRequest;
 import esubine.community.comment.dto.CommentResponse;
 import esubine.community.comment.model.CommentEntity;
@@ -85,6 +85,7 @@ public class CommentService {
 
     public List<CommentResponse> response(List<CommentEntity> commentEntityList) {
         List<CommentResponse> result = new ArrayList<>();
+
         for (int i = 0; i < commentEntityList.size(); i++) {
             CommentEntity comment = commentEntityList.get(i);
             result.add(new CommentResponse(comment));
