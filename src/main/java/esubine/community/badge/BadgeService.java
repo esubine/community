@@ -1,5 +1,6 @@
 package esubine.community.badge;
 
+import esubine.community.badge.aop.CheckBadge;
 import esubine.community.badge.model.BadgeEntity;
 import esubine.community.badge.model.BadgeRepository;
 import esubine.community.badge.model.UserBadgeEntity;
@@ -38,5 +39,9 @@ public class BadgeService {
                 });
     }
 
+    @CheckBadge
+    public Set<UserBadgeEntity> searchUser(Long badgeId){
+        return badgeRepository.searchUserByBadgeId(badgeId);
+    }
 
 }

@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             "LEFT JOIN FETCH u.userBadges " +
             "WHERE u.id=:userId ")
     Optional<UserEntity> getByUserId(Long userId);
+
 }
