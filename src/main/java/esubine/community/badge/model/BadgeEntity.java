@@ -1,5 +1,6 @@
 package esubine.community.badge.model;
 
+import esubine.community.user.dto.BadgeInfoResponse;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -79,4 +80,5 @@ public class BadgeEntity {
             return null;
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package esubine.community.user.model;
 
+import esubine.community.badge.model.BadgeEntity;
 import esubine.community.badge.model.UserBadgeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,11 +72,52 @@ public class UserEntity {
         return user;
     }
 
-
     public Set<Long> getBadgeId() {
         try {
             return userBadges.stream()
                     .map((e) -> e.getBadge().getBadgeId())
+                    .collect(Collectors.toSet());
+        } catch (LazyInitializationException e) {
+            return null;
+        }
+    }
+
+    public Set<String> getBadgeName() {
+        try {
+            return userBadges.stream()
+                    .map((e) -> e.getBadge().getName())
+                    .collect(Collectors.toSet());
+        } catch (LazyInitializationException e) {
+            return null;
+        }
+    }
+
+//    public Long getBadgeId() {
+//        try {
+//            return userBadges.stream()
+//                    .map((e) -> e.getBadge().getBadgeId())
+//                    .toList()
+//                    .get(1);
+//        } catch (LazyInitializationException e) {
+//            return null;
+//        }
+//    }
+//
+//    public String getBadgeName() {
+//        try {
+//            return userBadges.stream()
+//                    .map((e) -> e.getBadge().getName())
+//                    .toList()
+//                    .get(1);
+//        } catch (LazyInitializationException e) {
+//            return null;
+//        }
+//    }
+
+    public Set<BadgeEntity> getBadges() {
+        try {
+            return userBadges.stream()
+                    .map(UserBadgeEntity::getBadge)
                     .collect(Collectors.toSet());
         } catch (LazyInitializationException e) {
             return null;
