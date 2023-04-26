@@ -73,6 +73,7 @@ public class CommentService {
         }
     }
 
+    //TODO: 댓글 조회 시 유저 ~ 뱃지정보 출력
     public List<CommentEntity> getCommentByBoardId(Long boardId, Pageable pageable) {
         BoardEntity board = boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("해당 게시물이 존재하지 않습니다."));
 
@@ -91,7 +92,7 @@ public class CommentService {
         }
         return result;
     }
-
+    //TODO: 댓글 조회 시 유저 ~ 뱃지정보 출력
     public List<CommentEntity> getCommentByUserId(Long userId, Pageable pageable) {
         List<CommentEntity> commentEntityList = commentRepository.getCommentByUserId(userId, pageable);
         if (commentEntityList.isEmpty()) {
