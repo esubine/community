@@ -8,6 +8,7 @@ import esubine.community.hashtag.model.BoardHashTagEntity;
 import esubine.community.hashtag.model.BoardHashTagRepository;
 import esubine.community.hashtag.model.HashTagEntity;
 import esubine.community.hashtag.model.HashtagRepository;
+import esubine.community.user.model.BlockUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,8 @@ public class HashTagService {
     private final BoardHashTagRepository boardHashTagRepository;
 
     private final BoardRepository boardRepository;
+
+    private final BlockUserRepository blockUserRepository;
 
     public List<HashTagEntity> convertHashTagEntity(List<String> names) {
         List<HashTagEntity> originList = hashtagRepository.findAllByNameIn(names);
@@ -38,26 +41,35 @@ public class HashTagService {
         return originList;
     }
 
-    public List<BoardResponse> searchHashtag(String name) {
+    public List<BoardResponse> searchHashtag(String name, Long userId) {
         Long hashtagId = hashtagRepository.getHashtagIdByName(name).orElseThrow(() -> new NoDataException("검색결과가 없습니다."));
-        return containBoardId(hashtagId);
+        return containBoardId(hashtagId, userId);
     }
 
-    public List<BoardResponse> containBoardId(Long hashtagId) {
+    public List<BoardResponse> containBoardId(Long hashtagId, Long userId) {
         List<BoardHashTagEntity> boardHashTagList = boardHashTagRepository.getBoardHashTagEntitiesByHashtagId(hashtagId);
         List<Long> boardIdList = boardHashTagList.stream()
                 .map((e) -> e.getBoard().getBoardId())
                 .toList();
-        return getBoardContents(boardIdList);
+        return getBoardContents(boardIdList, userId);
     }
 
-    public List<BoardResponse> getBoardContents(List<Long> boardIdList){
-
+    public List<BoardResponse> getBoardContents(List<Long> boardIdList, Long userId) {
         List<BoardEntity> boardList = new ArrayList<>();
 
         for (int i = 0; i < boardIdList.size(); i++) {
-            boardList.add(boardRepository.getBoardByBoardId(boardIdList.get(i)));
+            BoardEntity board = boardRepository.getBoardByBoardId(boardIdList.get(i), userId);
+            boardList.add(board);
         }
+
+
+//
+//        for (int i = 0; i < boardIdList.size(); i++) {
+//            BoardEntity board = boardRepository.getBoardByBoardId(boardIdList.get(i));
+////            if (blockUserRepository.findByRequesterIdAndTargetId(userId, board.getUser().getId()).isPresent()) {
+////
+////            }
+//        }
         return boardList.stream().map(BoardResponse::new).toList();
 
     }

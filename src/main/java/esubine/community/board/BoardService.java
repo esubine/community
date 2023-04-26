@@ -6,19 +6,19 @@ import esubine.community.board.dto.*;
 import esubine.community.board.model.*;
 import esubine.community.category.model.CategoryEntity;
 import esubine.community.category.model.CategoryRepository;
-import esubine.community.exception.AuthException;
-import esubine.community.exception.DuplicatedException;
-import esubine.community.exception.MisMatchException;
-import esubine.community.exception.NoDataException;
+import esubine.community.exception.*;
 import esubine.community.hashtag.HashTagService;
 import esubine.community.hashtag.model.HashTagEntity;
 import esubine.community.user.model.BlockUserRepository;
+import esubine.community.user.model.UserEntity;
+import esubine.community.user.model.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +30,8 @@ public class BoardService {
     private final BoardReportInfoRepository boardReportInfoRepository;
     private final BlockUserRepository blockUserRepository;
     private final CategoryRepository categoryRepository;
+
+    private final UserRepository userRepository;
 
     private final HashTagService hashTagService;
 
@@ -59,7 +61,16 @@ public class BoardService {
     }
 
     public List<BoardEntity> getBoard(Pageable pageable, Long userId) {
-        return boardRepository.getAll(pageable, userId);
+        List<BoardEntity> boardEntity = boardRepository.getAll(pageable, userId);
+        List<Long> writerId = new ArrayList<>();
+
+        for (BoardEntity entity : boardEntity) {
+            Long id = entity.getUser().getId();
+            writerId.add(id);
+            UserEntity writer = userRepository.getByUserId(id).orElseThrow(() -> new LogicException("[ERROR]유저정보가 조회되지 않습니다."));
+            entity.setUser(writer);
+        }
+        return boardEntity;
     }
 
     public List<BoardEntity> getBoardByUserId(Pageable pageable, Long userId, Long requesterId) {
@@ -67,8 +78,17 @@ public class BoardService {
         if (blockUserRepository.findByRequesterIdAndTargetId(requesterId, userId).isPresent()) {
             throw new AuthException("차단한 유저입니다.");
         } else {
-//            List<BoardEntity> boards = boardRepository.getByUserId(pageable, userId, requesterId);
-            return boardRepository.getByUserId(pageable, userId);
+            List<BoardEntity> boards = boardRepository.getByUserId(pageable, userId);
+            List<Long> writerId = new ArrayList<>();
+
+            for (BoardEntity entity : boards) {
+                Long id = entity.getUser().getId();
+                writerId.add(id);
+                UserEntity writer = userRepository.getByUserId(id).orElseThrow(() -> new LogicException("[ERROR]유저정보가 조회되지 않습니다."));
+                entity.setUser(writer);
+            }
+
+            return boards;
         }
     }
 
@@ -77,19 +97,31 @@ public class BoardService {
         if (boardOptional.isEmpty()) throw new NoDataException("해당 게시물이 존재하지 않습니다.");
         BoardEntity board = boardOptional.get();
 
-        if (blockUserRepository.findByRequesterIdAndTargetId(requesterId, board.getUser().getId()).isPresent()) {
+        if (blockUserRepository.findByRequesterIdAndTargetId(requesterId, board.getUser().getId()).isPresent())
             throw new AuthException("차단한 유저의 게시물입니다.");
-        }
-        if (board.getReportCount() > 5) {
+        if (board.getReportCount() > 5)
             throw new AuthException("신고된 게시물입니다.");
-        } else {
-            return boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
-//        return boardRepository.findByBoardId(boardId);
-        }
+
+        BoardEntity boardEntity = boardRepository.getByBoardId(boardId).orElseThrow(() -> new NoDataException("존재하지 않은 게시물 입니다."));
+        Long writerId = boardEntity.getUser().getId();
+        UserEntity writer = userRepository.getByUserId(writerId).orElseThrow(() -> new LogicException("[ERROR]유저정보가 조회되지 않습니다."));
+        boardEntity.setUser(writer);
+
+        return boardEntity;
     }
 
     public List<BoardEntity> getByCategoryId(Long categoryId, Pageable pageable, Long requesterId) {
-        return boardRepository.getByCategoryId(categoryId, pageable, requesterId);
+        List<BoardEntity> boardEntity = boardRepository.getByCategoryId(categoryId, pageable, requesterId);
+        List<Long> writerId = new ArrayList<>();
+
+        for (BoardEntity entity : boardEntity) {
+            Long id = entity.getUser().getId();
+            writerId.add(id);
+            UserEntity writer = userRepository.getByUserId(id).orElseThrow(() -> new LogicException("[ERROR]유저정보가 조회되지 않습니다."));
+            entity.setUser(writer);
+        }
+
+        return boardEntity;
     }
 
 

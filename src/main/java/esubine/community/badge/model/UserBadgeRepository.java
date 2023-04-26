@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Set;
 
 public interface UserBadgeRepository extends JpaRepository<UserBadgeEntity, Long> {
-    @Query("SELECT ub.badge.badgeId FROM UserBadgeEntity ub " +
+    @Query("SELECT ub.badge FROM UserBadgeEntity ub " +
             "WHERE ub.user.id=:userId ")
     Set<UserBadgeEntity> getUserBadges(Long userId);
 
