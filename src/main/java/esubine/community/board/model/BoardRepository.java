@@ -20,12 +20,9 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 
 
     @Query("SELECT b FROM BoardEntity b " +
-//            "LEFT JOIN FETCH b.user " +
             "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId "+
             "LEFT JOIN FETCH b.category " +
             "LEFT JOIN FETCH b.boardHashTags "+
-//            "LEFT JOIN FETCH b.user.userBadges ub " +
-//            "LEFT JOIN FETCH ub.badge " +
             "WHERE b.boardId=:boardId " +
             "AND b.isDelete=false ")
     Optional<BoardEntity> getByBoardId(Long boardId);
@@ -33,8 +30,6 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     @Query("SELECT b FROM BoardEntity b " +
             "LEFT JOIN FETCH b.user u " +
             "LEFT JOIN FETCH b.category c "+
-//            "LEFT JOIN FETCH b.user.userBadges ub " +
-//            "LEFT JOIN FETCH ub.badge " +
             "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId AND bu.requesterId=:userId " +
             "LEFT JOIN FETCH b.boardHashTags "+
             "WHERE bu.blockUserId IS NULL " +
@@ -51,16 +46,9 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
             "AND b.isDelete=false ")
     BoardEntity getBoardByBoardId(Long boardId, Long userId);
 
-//    @Query("SELECT b FROM BoardEntity b " +
-//            "LEFT JOIN FETCH b.user " +
-//            "WHERE b.boardId=:boardId ")
-//    Optional<BoardEntity> getByBoardId(Long boardId);
-
     @Query("SELECT b FROM BoardEntity b " +
             "LEFT JOIN FETCH b.user u " +
             "LEFT JOIN FETCH b.category c " +
-//            "LEFT JOIN FETCH b.user.userBadges ub " +
-//            "LEFT JOIN FETCH ub.badge " +
             "LEFT JOIN FETCH BlockUserEntity bu ON b.user.id = bu.targetId AND bu.requesterId=:userId " +
             "LEFT JOIN FETCH b.boardHashTags "+
             "WHERE b.category.categoryId=:categoryId " +
@@ -80,7 +68,6 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     @Modifying
     void decreaseLikeCount(Long boardId);
 
-    Long countByBoardId(Long boardId);
     Long countByUserId(Long userId);
 
     @Query("SELECT sum(b.likeCount) from BoardEntity b " +

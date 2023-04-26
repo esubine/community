@@ -3,12 +3,14 @@ package esubine.community.hashtag;
 import esubine.community.board.dto.BoardResponse;
 import esubine.community.board.model.BoardEntity;
 import esubine.community.board.model.BoardRepository;
+import esubine.community.exception.LogicException;
 import esubine.community.exception.NoDataException;
 import esubine.community.hashtag.model.BoardHashTagEntity;
 import esubine.community.hashtag.model.BoardHashTagRepository;
 import esubine.community.hashtag.model.HashTagEntity;
 import esubine.community.hashtag.model.HashtagRepository;
-import esubine.community.user.model.BlockUserRepository;
+import esubine.community.user.model.UserEntity;
+import esubine.community.user.model.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,7 @@ public class HashTagService {
 
     private final BoardRepository boardRepository;
 
-    private final BlockUserRepository blockUserRepository;
+    private final UserRepository userRepository;
 
     public List<HashTagEntity> convertHashTagEntity(List<String> names) {
         List<HashTagEntity> originList = hashtagRepository.findAllByNameIn(names);
@@ -59,17 +61,11 @@ public class HashTagService {
 
         for (int i = 0; i < boardIdList.size(); i++) {
             BoardEntity board = boardRepository.getBoardByBoardId(boardIdList.get(i), userId);
+            Long writerId = board.getUser().getId();
+            UserEntity writer = userRepository.getByUserId(writerId).orElseThrow(() -> new LogicException("[ERROR]유저정보가 조회되지 않습니다."));
+            board.setUser(writer);
             boardList.add(board);
         }
-
-
-//
-//        for (int i = 0; i < boardIdList.size(); i++) {
-//            BoardEntity board = boardRepository.getBoardByBoardId(boardIdList.get(i));
-////            if (blockUserRepository.findByRequesterIdAndTargetId(userId, board.getUser().getId()).isPresent()) {
-////
-////            }
-//        }
         return boardList.stream().map(BoardResponse::new).toList();
 
     }
