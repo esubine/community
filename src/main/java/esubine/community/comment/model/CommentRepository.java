@@ -18,6 +18,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     @Query("SELECT c FROM CommentEntity c " +
             "LEFT JOIN FETCH c.user " +
+            "LEFT JOIN FETCH c.user.userBadges ub " +
+            "LEFT JOIN FETCH ub.badge " +
             "LEFT JOIN FETCH c.children cc " +
             "WHERE c.boardId=:boardId " +
             "AND c.isDelete=false " +
@@ -26,6 +28,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     @Query("SELECT c FROM CommentEntity c " +
             "LEFT JOIN FETCH c.user " +
+            "LEFT JOIN FETCH c.user.userBadges ub " +
+            "LEFT JOIN FETCH ub.badge " +
             "INNER JOIN BoardEntity b on b.boardId = c.boardId and b.isDelete=false " +
             "WHERE c.user.id=:userId " +
             "AND c.isDelete=false ")

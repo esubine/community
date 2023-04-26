@@ -20,14 +20,19 @@ public class UserResponse {
     private final Set<BadgeInfoResponse> badgeInfo;
 
 
-    public UserResponse(UserEntity user){
+    public UserResponse(UserEntity user) {
         this.id = user.getId();
         this.realName = user.getRealName();
+
         this.nickname = user.getNickname();
         this.loginId = user.getLoginId();
-        this.badgeInfo = user.getBadges().stream()
-                .map(BadgeInfoResponse::new)
-                .collect(Collectors.toSet());
+        if (user.getBadges() != null) {
+            this.badgeInfo = user.getBadges().stream()
+                    .map(BadgeInfoResponse::new)
+                    .collect(Collectors.toSet());
+        } else {
+            this.badgeInfo = new HashSet<>();
+        }
+
     }
 }
-

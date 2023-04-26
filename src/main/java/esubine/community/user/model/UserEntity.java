@@ -92,28 +92,6 @@ public class UserEntity {
         }
     }
 
-//    public Long getBadgeId() {
-//        try {
-//            return userBadges.stream()
-//                    .map((e) -> e.getBadge().getBadgeId())
-//                    .toList()
-//                    .get(1);
-//        } catch (LazyInitializationException e) {
-//            return null;
-//        }
-//    }
-//
-//    public String getBadgeName() {
-//        try {
-//            return userBadges.stream()
-//                    .map((e) -> e.getBadge().getName())
-//                    .toList()
-//                    .get(1);
-//        } catch (LazyInitializationException e) {
-//            return null;
-//        }
-//    }
-
     public Set<BadgeEntity> getBadges() {
         try {
             return userBadges.stream()

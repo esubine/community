@@ -44,4 +44,7 @@ public class BadgeService {
         return badgeRepository.searchUserByBadgeId(badgeId);
     }
 
+    public  Set<UserBadgeEntity> getUserBadges(Long userId){
+        return userBadgeRepository.getUserBadges(userId);
+    }
 }

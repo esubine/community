@@ -1,5 +1,6 @@
 package esubine.community.hashtag;
 
+import esubine.community.auth.AuthInfo;
 import esubine.community.board.dto.BoardResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +19,9 @@ public class HashTagController {
 
     @GetMapping
     public List<BoardResponse> searchHashTag(
-            @RequestParam(value = "search") String hashtagName
+            @RequestParam(value = "search") String hashtagName,
+            AuthInfo authInfo
     ) {
-       return hashTagService.searchHashtag(hashtagName);
+       return hashTagService.searchHashtag(hashtagName, authInfo.getUserId());
     }
 }
