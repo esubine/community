@@ -15,10 +15,11 @@ public class ChildCommentResponse {
         this.commentId = comment.getCommentId();
         if (comment.isDelete()) {
             this.comment = "삭제된 댓글입니다.";
+            this.user = null;
         } else {
             this.comment = comment.getComment();
+            this.user = new UserResponse(comment.getUser());
         }
         this.boardId = comment.getBoardId();
-        this.user = new UserResponse(comment.getUser());
     }
 }
