@@ -1,19 +1,19 @@
 package esubine.community.user;
 
 import esubine.community.EmptyResponse;
-import esubine.community.auth.model.TokenEntity;
 import esubine.community.auth.model.TokenRepository;
-import esubine.community.user.model.BlockUserEntity;
-import esubine.community.user.model.BlockUserRepository;
-import esubine.community.user.model.UserEntity;
-import esubine.community.user.model.UserRepository;
 import esubine.community.exception.AuthException;
 import esubine.community.exception.DuplicatedException;
 import esubine.community.exception.MisMatchException;
+import esubine.community.exception.NoDataException;
 import esubine.community.user.dto.CreateUserRequest;
 import esubine.community.user.dto.UpdateNicknameRequest;
 import esubine.community.user.dto.UpdatePasswordRequest;
 import esubine.community.user.dto.UserResponse;
+import esubine.community.user.model.BlockUserEntity;
+import esubine.community.user.model.BlockUserRepository;
+import esubine.community.user.model.UserEntity;
+import esubine.community.user.model.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,8 +39,7 @@ public class UserService {
     }
 
     public UserResponse getUserInfo(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AuthException("존재하지않는 유저입니다."));
-
+        UserEntity user = userRepository.getByUserId(userId).orElseThrow(() -> new NoDataException("존재하지 않는 유저입니다."));
         return new UserResponse(user);
     }
 
@@ -115,3 +114,4 @@ public class UserService {
 //        }
 //    }
 }
+

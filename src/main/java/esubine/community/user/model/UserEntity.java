@@ -1,18 +1,21 @@
 package esubine.community.user.model;
 
+import esubine.community.badge.model.BadgeEntity;
 import esubine.community.badge.model.UserBadgeEntity;
-import esubine.community.hashtag.model.BoardHashTagEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.LazyInitializationException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -67,4 +70,37 @@ public class UserEntity {
         user.id = userId;
         return user;
     }
+
+    public Set<Long> getBadgeIds() {
+        try {
+            return userBadges.stream()
+                    .map((e) -> e.getBadge().getBadgeId())
+                    .collect(Collectors.toSet());
+        } catch (LazyInitializationException e) {
+            return null;
+        }
+    }
+
+    public Set<String> getBadgeNames() {
+        try {
+            return userBadges.stream()
+                    .map((e) -> e.getBadge().getName())
+                    .collect(Collectors.toSet());
+        } catch (LazyInitializationException e) {
+            return null;
+        }
+    }
+
+
+    public Set<BadgeEntity> getBadges() {
+
+        try {
+            return userBadges.stream()
+                    .map(UserBadgeEntity::getBadge)
+                    .collect(Collectors.toSet());
+        } catch (LazyInitializationException e) {
+            return null;
+        }
+    }
 }
+
