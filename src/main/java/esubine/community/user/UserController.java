@@ -69,4 +69,5 @@ public class UserController {
         userService.blockUser(authInfo.getUserId(), targetId);
         return new EmptyResponse();
     }
+
 }

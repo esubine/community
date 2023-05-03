@@ -14,7 +14,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -72,7 +71,7 @@ public class UserEntity {
         return user;
     }
 
-    public Set<Long> getBadgeId() {
+    public Set<Long> getBadgeIds() {
         try {
             return userBadges.stream()
                     .map((e) -> e.getBadge().getBadgeId())
@@ -82,7 +81,7 @@ public class UserEntity {
         }
     }
 
-    public Set<String> getBadgeName() {
+    public Set<String> getBadgeNames() {
         try {
             return userBadges.stream()
                     .map((e) -> e.getBadge().getName())
@@ -92,29 +91,9 @@ public class UserEntity {
         }
     }
 
-//    public Long getBadgeId() {
-//        try {
-//            return userBadges.stream()
-//                    .map((e) -> e.getBadge().getBadgeId())
-//                    .toList()
-//                    .get(1);
-//        } catch (LazyInitializationException e) {
-//            return null;
-//        }
-//    }
-//
-//    public String getBadgeName() {
-//        try {
-//            return userBadges.stream()
-//                    .map((e) -> e.getBadge().getName())
-//                    .toList()
-//                    .get(1);
-//        } catch (LazyInitializationException e) {
-//            return null;
-//        }
-//    }
 
     public Set<BadgeEntity> getBadges() {
+
         try {
             return userBadges.stream()
                     .map(UserBadgeEntity::getBadge)
