@@ -20,15 +20,13 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
             "LEFT JOIN FETCH c.user " +
             "LEFT JOIN FETCH c.children cc " +
             "WHERE c.boardId=:boardId " +
-            "AND c.isDelete=false " +
             "ORDER BY c.commentId ASC, cc.commentId ASC ")
     List<CommentEntity> getCommentAllByBoardId(Long boardId, Pageable pageable);
 
     @Query("SELECT c FROM CommentEntity c " +
             "LEFT JOIN FETCH c.user " +
             "INNER JOIN BoardEntity b on b.boardId = c.boardId and b.isDelete=false " +
-            "WHERE c.user.id=:userId " +
-            "AND c.isDelete=false ")
+            "WHERE c.user.id=:userId " )
 
     List<CommentEntity> getCommentByUserId(Long userId, Pageable pageable);
 

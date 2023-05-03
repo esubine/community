@@ -13,8 +13,13 @@ public class ChildCommentResponse {
 
     public ChildCommentResponse(CommentEntity comment) {
         this.commentId = comment.getCommentId();
-        this.comment = comment.getComment();
+        if (comment.isDelete()) {
+            this.comment = "삭제된 댓글입니다.";
+            this.user = null;
+        } else {
+            this.comment = comment.getComment();
+            this.user = new UserResponse(comment.getUser());
+        }
         this.boardId = comment.getBoardId();
-        this.user = new UserResponse(comment.getUser());
     }
 }
